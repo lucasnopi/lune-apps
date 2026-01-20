@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LUNE Studio 4.0 - Assistente de Criação de Estampas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .font-serif { font-family: 'Playfair Display', serif; }
+    .drop-zone.dragover { border-color: #00d4aa !important; background-color: rgba(0, 212, 170, 0.1) !important; }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: #1c252f; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #2a3540; border-radius: 3px; }
+    @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 20px rgba(0, 212, 170, 0.3); } 50% { box-shadow: 0 0 40px rgba(0, 212, 170, 0.6); } }
+    .analyzing { animation: pulse-glow 1.5s ease-in-out infinite; }
+    .prose h3 { font-size: 1.1rem; font-weight: 600; color: #00d4aa; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+    .prose p { margin-bottom: 0.75rem; color: #c0d4e6; font-size: 0.9rem; line-height: 1.7; }
+    .prose strong { color: #f0f4f8; }
+    .prompt-box { background: #111820; border: 1px solid #2a3540; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+    .prompt-box:hover { border-color: #00d4aa; }
+    .prompt-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .prompt-title { font-size: 0.85rem; font-weight: 600; color: #00d4aa; }
+    .prompt-copy { font-size: 0.75rem; color: #8899a6; cursor: pointer; padding: 4px 8px; border-radius: 6px; }
+    .prompt-copy:hover { background: #2a3540; color: #00d4aa; }
+    .prompt-text { font-size: 0.8rem; color: #c0d4e6; font-family: monospace; white-space: pre-wrap; line-height: 1.6; }
+    .comercial-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; }
+    .comercial-high { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+    .comercial-medium { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+    .comercial-low { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; }
+    .tab-active { background: #00d4aa; color: #0a0f14; }
+  </style>
+</head>
+<body class="bg-[#0a0f14] text-[#f0f4f8] min-h-screen">
+  <div id="app">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-[#0a0f14]/95 backdrop-blur-sm border-b border-[#1c252f]">
+      <div class="max-w-7xl mx-auto px-4 md:px-8 py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-gradient-to-br from-[#00d4aa] to-[#00a88a] rounded-xl flex items-center justify-center">
+              <span class="text-2xl">🌙</span>
+            </div>
+            <div>
+              <h1 class="font-serif text-2xl font-semibold tracking-tight">
+                <span class="text-white">LUNE</span> <span class="text-[#00d4aa]">Studio</span>
+                <span class="text-xs text-[#556677] ml-2">4.0</span>
+              </h1>
+              <p class="text-[10px] text-[#556677] tracking-widest uppercase">Assistente de Criação de Estampas</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="hidden md:flex bg-[#161d26] rounded-lg p-1">
+              <button onclick="showTab('create')" id="tab-create" class="px-4 py-2 rounded-md text-sm transition-colors tab-active">✨ Criar</button>
+              <button onclick="showTab('modelagens')" id="tab-modelagens" class="px-4 py-2 rounded-md text-sm transition-colors text-[#8899a6] hover:text-white">🎀 Modelagens</button>
+              <button onclick="showTab('moodboards')" id="tab-moodboards" class="px-4 py-2 rounded-md text-sm transition-colors text-[#8899a6] hover:text-white">📁 Moodboards</button>
+              <button onclick="showTab('compare')" id="tab-compare" class="px-4 py-2 rounded-md text-sm transition-colors text-[#8899a6] hover:text-white">⚖️ Comparar</button>
+            </div>
+            <button onclick="toggleConfig()" class="p-2 md:px-4 md:py-2 bg-[#161d26] hover:bg-[#1c252f] rounded-lg text-sm">⚙️</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 md:px-8 py-8">
+      <!-- CREATE TAB -->
+      <div id="content-create">
+        <section id="upload-section" class="mb-8">
+          <div id="drop-zone" class="drop-zone border-2 border-dashed border-[#2a3540] rounded-2xl p-12 text-center cursor-pointer hover:border-[#00d4aa]/50 transition-all bg-[#161d26]/50" onclick="document.getElementById('image-input').click()">
+            <div class="text-6xl mb-4">📸</div>
+            <h2 class="font-serif text-2xl mb-2">Envie uma imagem de referência</h2>
+            <p class="text-[#8899a6] mb-4">Arraste e solte ou clique para selecionar</p>
+            <p class="text-xs text-[#556677]">Formatos: PNG, JPEG (máx. 20MB)</p>
+          </div>
+          <input type="file" id="image-input" accept="image/png, image/jpeg, image/jpg" class="hidden" onchange="handleImageSelect(event)">
+        </section>
+
+        <section id="analysis-section" class="hidden">
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-1 space-y-4">
+              <div class="bg-[#161d26] rounded-2xl border border-[#2a3540] overflow-hidden">
+                <div class="p-4 border-b border-[#2a3540] flex items-center justify-between">
+                  <h3 class="font-serif text-lg">Referência</h3>
+                  <button onclick="resetAnalysis()" class="text-xs text-[#8899a6] hover:text-white">🔄 Nova</button>
+                </div>
+                <div class="p-4"><img id="preview-image" src="" alt="Preview" class="w-full rounded-lg"></div>
+              </div>
+              <div id="comercial-card" class="bg-[#161d26] rounded-2xl border border-[#2a3540] p-4 hidden">
+                <h4 class="text-xs text-[#8899a6] uppercase tracking-wider mb-3">📊 Classificação</h4>
+                <div id="comercial-badge-container" class="mb-3"></div>
+                <p id="comercial-justificativa" class="text-xs text-[#8899a6]"></p>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <button onclick="exportPDF()" class="p-3 bg-[#161d26] hover:bg-[#1c252f] border border-[#2a3540] rounded-xl text-left"><span class="text-lg">📄</span><span class="text-xs block mt-1">Exportar PDF</span></button>
+                <button onclick="saveToHistoryAsync()" class="p-3 bg-[#161d26] hover:bg-[#1c252f] border border-[#2a3540] rounded-xl text-left"><span class="text-lg">💾</span><span class="text-xs block mt-1">Salvar</span></button>
+                <button onclick="addToMoodboard()" class="p-3 bg-[#161d26] hover:bg-[#1c252f] border border-[#2a3540] rounded-xl text-left"><span class="text-lg">📌</span><span class="text-xs block mt-1">Add Moodboard</span></button>
+                <button onclick="copyAllPrompts()" class="p-3 bg-[#161d26] hover:bg-[#1c252f] border border-[#2a3540] rounded-xl text-left"><span class="text-lg">📋</span><span class="text-xs block mt-1">Copiar Prompts</span></button>
+              </div>
+            </div>
+            <div class="lg:col-span-2">
+              <div class="bg-[#161d26] rounded-2xl border border-[#2a3540] overflow-hidden">
+                <div class="p-4 border-b border-[#2a3540] flex items-center justify-between">
+                  <h3 class="font-serif text-lg">Análise Completa</h3>
+                  <span id="analysis-status" class="text-xs text-[#00d4aa]"></span>
+                </div>
+                <div id="loading-state" class="p-8 text-center hidden">
+                  <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-[#00d4aa]/20 flex items-center justify-center analyzing"><span class="text-3xl">🔍</span></div>
+                  <p class="text-[#8899a6] mb-2">Analisando imagem...</p>
+                </div>
+                <div id="analysis-results" class="p-6 max-h-[800px] overflow-y-auto scrollbar-thin hidden">
+                  <div class="mb-6 p-4 bg-[#111820] rounded-xl border border-[#2a3540]">
+                    <label class="text-xs text-[#8899a6] uppercase tracking-wider mb-2 block">📝 Suas Notas</label>
+                    <textarea id="personal-notes" class="w-full bg-transparent border-none text-sm focus:outline-none resize-none text-[#c0d4e6]" rows="2" placeholder="Adicione suas observações..."></textarea>
+                  </div>
+                  <div id="analysis-content" class="prose"></div>
+                  <div id="prompts-section" class="mt-6 hidden">
+                    <h3 class="text-lg font-serif text-[#00d4aa] mb-4">🎨 Prompts Midjourney</h3>
+                    <div id="prompts-container"></div>
+                  </div>
+                </div>
+                <div id="error-state" class="p-8 text-center hidden">
+                  <div class="text-4xl mb-4">😕</div>
+                  <p class="text-red-400 mb-2" id="error-message">Erro ao analisar</p>
+                  <button onclick="retryAnalysis()" class="text-sm text-[#00d4aa] hover:underline">Tentar novamente</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="history-section" class="mt-12">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="font-serif text-xl">📚 Histórico</h2>
+            <span id="history-count" class="text-xs text-[#556677]">0 análises</span>
+          </div>
+          <div id="history-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
+          <div id="history-empty" class="text-center py-12 text-[#556677]"><p class="text-4xl mb-2">📚</p><p>Suas análises salvas aparecerão aqui</p></div>
+        </section>
+      </div>
+
+      <!-- MODELAGENS TAB -->
+      <div id="content-modelagens" class="hidden">
+        <div class="mb-6">
+          <h2 class="font-serif text-2xl">🎀 Gerador de Modelagens</h2>
+          <p class="text-sm text-[#8899a6] mt-1">Crie variações de peças com prompts prontos pro Sora</p>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="space-y-4">
+            <div class="bg-[#161d26] rounded-2xl border border-[#2a3540] p-4">
+              <h3 class="text-sm font-medium mb-3">1. Selecione uma Referência</h3>
+              <div id="modelagem-drop-zone" class="drop-zone border-2 border-dashed border-[#2a3540] rounded-xl p-6 text-center cursor-pointer hover:border-[#00d4aa]/50 mb-4" onclick="document.getElementById('modelagem-image-input').click()">
+                <span class="text-3xl">📸</span>
+                <p class="text-xs text-[#8899a6] mt-2">Arraste ou clique</p>
+              </div>
+              <input type="file" id="modelagem-image-input" accept="image/png, image/jpeg, image/jpg" class="hidden" onchange="handleModelagemImage(event)">
+              <p class="text-xs text-[#556677] text-center mb-3">ou selecione do histórico:</p>
+              <div id="modelagem-history" class="grid grid-cols-4 gap-2 max-h-[150px] overflow-y-auto"></div>
+              <div id="modelagem-preview" class="mt-4 hidden">
+                <img id="modelagem-preview-img" src="" class="w-full rounded-lg">
+                <button onclick="clearModelagem()" class="mt-2 text-xs text-red-400">✕ Remover</button>
+              </div>
+            </div>
+          </div>
+          <div class="space-y-4">
+            <div class="bg-[#161d26] rounded-2xl border border-[#2a3540] p-4">
+              <h3 class="text-sm font-medium mb-3">2. Configure a Peça</h3>
+              <div class="mb-4">
+                <label class="text-xs text-[#8899a6] uppercase mb-2 block">Tipo de Peça</label>
+                <select id="tipo-peca" class="w-full p-3 bg-[#111820] border border-[#2a3540] rounded-lg text-sm">
+                  <option value="vestido-longo">Vestido Longo</option>
+                  <option value="vestido-midi">Vestido Midi</option>
+                  <option value="vestido-curto">Vestido Curto</option>
+                  <option value="cropped-saia">Cropped + Saia</option>
+                  <option value="kimono">Kimono</option>
+                  <option value="caftan">Caftã</option>
+                  <option value="macacao">Macacão</option>
+                </select>
+              </div>
+              <div class="mb-4">
+                <label class="text-xs text-[#8899a6] uppercase mb-2 block">Decote</label>
+                <div class="grid grid-cols-3 gap-2">
+                  <button onclick="selectOpt('decote','v')" class="opt-btn p-2 bg-[#111820] border border-[#2a3540] rounded-lg text-xs" data-opt="decote" data-val="v">V</button>
+                  <button onclick="selectOpt('decote','quadrado')" class="opt-btn p-2 bg-[#111820] border border-[#2a3540] rounded-lg text-xs" data-opt="decote" data-val="quadrado">Quadrado</button>
+                  <button onclick="selectOpt('decote','redondo')" class="opt-btn p-2 bg-[#111820] border border-[#2a3540] rounded-lg text-xs" data-opt="decote" data-val="redondo">Redondo</button>
+                  <button onclick="selectOpt('decote','tomara')" class="opt-btn p-2 bg-[#111820] border border-[#2a3540] rounded-lg text-xs" data-opt="decote" data-val="tomara">Tomara que Caia</button>
+                  <button onclick="selectOpt('decote','ombro')" class="opt-btn p-2 bg-[#111820] border border-[#2a3540] rounded-lg text-xs" data-opt="decote" data-val="ombro">Ombro a Ombro</button>
+                  <button onclick="selectOpt('decote','assimetrico')" class="opt-btn p-2 bg-[#111820] border border-[#2a3540] rounded-lg text-xs" data-opt="decote" data-val="assimetrico">Assimétrico</button>
+                </div>
+              </div>
+              <div class="mb-4">
+                <label class="text-xs text-[#8899a6] uppercase mb-2 block">Manga</label>
+                <div class="grid grid-cols-3 gap-2">
+                  <button onclick="selectOpt('manga','sem')" class="opt-btn p-2 bg-[#111820] border border-[#2a3540] rounded-lg text-xs" data-opt="manga" data-val="sem">Sem Manga</button>
+                  <button onclick="selectOpt('manga','alcinha')" class="opt-btn p-2 bg-[#111820] border border-[#2a3540] rounded-lg text-xs" data-opt="manga" data-val="alcinha">Alcinha</button>
+                  <button onclick="selectOpt('manga','curta')" class="opt-btn p-2 bg-[#111820] border border-[#2a3540] rounded-lg text-xs" data-opt="manga" data-val="curta">Curta</button>
+                  <button onclick="selectOpt('manga','bufante')" class="opt-btn p-2 bg-[#111820] border border-[#2a3540] rounded-lg text-xs" data-opt="manga" data-val="bufante">Bufante</button>
+                  <button onclick="selectOpt('manga','sino')" class="opt-btn p-2 bg-[#111820] border border-[#2a3540] rounded-lg text-xs" data-opt="manga" data-val="sino">Sino</button>
+                  <button onclick="selectOpt('manga','longa')" class="opt-btn p-2 bg-[#111820] border border-[#2a3540] rounded-lg text-xs" data-opt="manga" data-val="longa">Longa</button>
+                </div>
+              </div>
+              <div class="mb-4">
+                <label class="text-xs text-[#8899a6] uppercase mb-2 block">Silhueta</label>
+                <div class="grid grid-cols-3 gap-2">
+                  <button onclick="selectOpt('silhueta','fluida')" class="opt-btn p-2 bg-[#111820] border border-[#2a3540] rounded-lg text-xs" data-opt="silhueta" data-val="fluida">Fluida</button>
+                  <button onclick="selectOpt('silhueta','ajustada')" class="opt-btn p-2 bg-[#111820] border border-[#2a3540] rounded-lg text-xs" data-opt="silhueta" data-val="ajustada">Ajustada</button>
+                  <button onclick="selectOpt('silhueta','ampla')" class="opt-btn p-2 bg-[#111820] border border-[#2a3540] rounded-lg text-xs" data-opt="silhueta" data-val="ampla">Ampla</button>
+                  <button onclick="selectOpt('silhueta','evase')" class="opt-btn p-2 bg-[#111820] border border-[#2a3540] rounded-lg text-xs" data-opt="silhueta" data-val="evase">Evasê</button>
+                  <button onclick="selectOpt('silhueta','sereia')" class="opt-btn p-2 bg-[#111820] border border-[#2a3540] rounded-lg text-xs" data-opt="silhueta" data-val="sereia">Sereia</button>
+                  <button onclick="selectOpt('silhueta','trapezio')" class="opt-btn p-2 bg-[#111820] border border-[#2a3540] rounded-lg text-xs" data-opt="silhueta" data-val="trapezio">Trapézio</button>
+                </div>
+              </div>
+              <div>
+                <label class="text-xs text-[#8899a6] uppercase mb-2 block">Ocasião</label>
+                <select id="ocasiao" class="w-full p-3 bg-[#111820] border border-[#2a3540] rounded-lg text-sm">
+                  <option value="casual">Casual Chic</option>
+                  <option value="praia">Praia/Resort</option>
+                  <option value="festa">Festa</option>
+                  <option value="romantico">Romântico</option>
+                  <option value="boho">Boho</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="space-y-4">
+            <div class="bg-[#161d26] rounded-2xl border border-[#2a3540] p-4">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="text-sm font-medium">3. Prompt Sora</h3>
+                <button onclick="copyPromptSora()" class="text-xs text-[#00d4aa]">📋 Copiar</button>
+              </div>
+              <div id="prompt-sora-output" class="bg-[#111820] rounded-lg p-4 text-xs text-[#c0d4e6] font-mono max-h-[350px] overflow-y-auto whitespace-pre-wrap">Configure a peça ao lado para gerar o prompt...</div>
+              <button onclick="gerarPromptSora()" class="w-full mt-4 py-3 bg-[#00d4aa] hover:bg-[#00a88a] text-[#0a0f14] rounded-lg font-medium">✨ Gerar Prompt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MOODBOARDS TAB -->
+      <div id="content-moodboards" class="hidden">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="font-serif text-2xl">📁 Moodboards</h2>
+          <button onclick="createMoodboard()" class="px-4 py-2 bg-[#00d4aa] hover:bg-[#00a88a] text-[#0a0f14] rounded-lg text-sm font-medium">+ Novo Moodboard</button>
+        </div>
+        <div id="moodboards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        <div id="moodboards-empty" class="text-center py-20 text-[#556677]"><p class="text-6xl mb-4">📁</p><p class="text-xl mb-2">Nenhum moodboard criado</p></div>
+      </div>
+
+      <!-- COMPARE TAB -->
+      <div id="content-compare" class="hidden">
+        <h2 class="font-serif text-2xl mb-6">⚖️ Comparar Análises</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-[#161d26] rounded-2xl border border-[#2a3540] p-6">
+            <h3 class="text-sm text-[#8899a6] mb-4">Referência 1</h3>
+            <div id="compare-slot-1" class="min-h-[300px] border-2 border-dashed border-[#2a3540] rounded-xl flex items-center justify-center cursor-pointer hover:border-[#00d4aa]/50" onclick="selectCompare(1)">
+              <p class="text-[#556677]">Clique para selecionar</p>
+            </div>
+          </div>
+          <div class="bg-[#161d26] rounded-2xl border border-[#2a3540] p-6">
+            <h3 class="text-sm text-[#8899a6] mb-4">Referência 2</h3>
+            <div id="compare-slot-2" class="min-h-[300px] border-2 border-dashed border-[#2a3540] rounded-xl flex items-center justify-center cursor-pointer hover:border-[#00d4aa]/50" onclick="selectCompare(2)">
+              <p class="text-[#556677]">Clique para selecionar</p>
+            </div>
+          </div>
+        </div>
+        <div id="compare-results" class="mt-6 hidden">
+          <button onclick="generateCompare()" class="w-full py-4 bg-[#00d4aa] hover:bg-[#00a88a] text-[#0a0f14] rounded-xl font-semibold">🔍 Gerar Comparação</button>
+          <div id="compare-content" class="mt-6 bg-[#161d26] rounded-2xl border border-[#2a3540] p-6 hidden"></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- MODALS -->
+    <div id="config-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+      <div class="bg-[#161d26] w-full max-w-md rounded-xl border border-[#2a3540] overflow-hidden">
+        <div class="p-6 border-b border-[#2a3540] flex justify-between items-center">
+          <h2 class="font-serif text-xl">⚙️ Configurações</h2>
+          <button onclick="toggleConfig()" class="text-[#8899a6] hover:text-white text-xl">✕</button>
+        </div>
+        <div class="p-6 space-y-6">
+          <div>
+            <label class="text-xs text-[#8899a6] uppercase mb-2 block">Chave da API OpenAI</label>
+            <input type="password" id="api-key-input" class="w-full p-3 bg-[#111820] border border-[#2a3540] rounded-lg text-sm" placeholder="sk-...">
+          </div>
+          <div>
+            <label class="text-xs text-[#8899a6] uppercase mb-2 block">--stylize padrão</label>
+            <select id="stylize-value" class="w-full p-3 bg-[#111820] border border-[#2a3540] rounded-lg text-sm">
+              <option value="50">50 (Autêntico)</option>
+              <option value="100">100 (Balanceado)</option>
+              <option value="250">250 (Estilizado)</option>
+            </select>
+          </div>
+          <button onclick="saveConfig()" class="w-full py-3 bg-[#00d4aa] text-[#0a0f14] font-semibold rounded-lg">Salvar</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="history-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+      <div class="bg-[#161d26] w-full max-w-4xl rounded-xl border border-[#2a3540] overflow-hidden max-h-[90vh] flex flex-col">
+        <div class="p-4 border-b border-[#2a3540] flex justify-between items-center">
+          <h2 class="font-serif text-lg" id="history-modal-title">Análise</h2>
+          <div class="flex gap-2">
+            <button onclick="deleteHistory()" class="text-red-400 text-sm">🗑️</button>
+            <button onclick="closeHistoryModal()" class="text-[#8899a6] text-xl">✕</button>
+          </div>
+        </div>
+        <div class="flex-1 overflow-y-auto p-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div><img id="history-modal-img" src="" class="w-full rounded-lg"></div>
+            <div class="md:col-span-2 prose" id="history-modal-content"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="moodboard-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+      <div class="bg-[#161d26] w-full max-w-sm rounded-xl border border-[#2a3540] overflow-hidden">
+        <div class="p-4 border-b border-[#2a3540]"><h2 class="font-serif text-lg">Novo Moodboard</h2></div>
+        <div class="p-4 space-y-4">
+          <div>
+            <label class="text-xs text-[#8899a6] uppercase mb-2 block">Nome</label>
+            <input type="text" id="moodboard-name" class="w-full p-3 bg-[#111820] border border-[#2a3540] rounded-lg text-sm" placeholder="Ex: Coleção Verão 2026">
+          </div>
+          <div class="flex gap-2">
+            <button onclick="closeMoodboardModal()" class="flex-1 py-2 text-[#8899a6]">Cancelar</button>
+            <button onclick="saveMoodboard()" class="flex-1 py-2 bg-[#00d4aa] text-[#0a0f14] rounded-lg font-medium">Criar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="select-moodboard-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+      <div class="bg-[#161d26] w-full max-w-sm rounded-xl border border-[#2a3540] overflow-hidden">
+        <div class="p-4 border-b border-[#2a3540] flex justify-between items-center">
+          <h2 class="font-serif text-lg">Adicionar ao Moodboard</h2>
+          <button onclick="closeSelectMoodboard()" class="text-[#8899a6] text-xl">✕</button>
+        </div>
+        <div class="p-4 space-y-2" id="select-moodboard-list"></div>
+      </div>
+    </div>
+
+    <div id="compare-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+      <div class="bg-[#161d26] w-full max-w-2xl rounded-xl border border-[#2a3540] overflow-hidden max-h-[80vh] flex flex-col">
+        <div class="p-4 border-b border-[#2a3540] flex justify-between items-center">
+          <h2 class="font-serif text-lg">Selecionar Referência</h2>
+          <button onclick="closeCompareModal()" class="text-[#8899a6] text-xl">✕</button>
+        </div>
+        <div class="p-4 flex-1 overflow-y-auto">
+          <div id="compare-select-grid" class="grid grid-cols-4 gap-2"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State
+    let currentImage = null, currentImageBase64 = null, currentAnalysis = null, currentPrompts = null;
+    let currentHistoryId = null, compareSlot = null, compareItems = [null, null];
+    let modelagemImage = null, modelagemOpts = { decote: null, manga: null, silhueta: null };
+    let history = JSON.parse(localStorage.getItem('lune_history') || '[]');
+    let moodboards = JSON.parse(localStorage.getItem('lune_moodboards') || '[]');
+
+    // Tabs
+    function showTab(tab) {
+      ['create','modelagens','moodboards','compare'].forEach(t => {
+        document.getElementById('content-' + t).classList.toggle('hidden', t !== tab);
+        document.getElementById('tab-' + t).classList.toggle('tab-active', t === tab);
+        document.getElementById('tab-' + t).classList.toggle('text-[#8899a6]', t !== tab);
+      });
+      if (tab === 'modelagens') renderModelagemHistory();
+      if (tab === 'moodboards') renderMoodboards();
+      if (tab === 'compare') renderCompare();
+    }
+
+    // Config
+    function getConfig() {
+      return { apiKey: localStorage.getItem('lune_api_key') || '', stylize: localStorage.getItem('lune_stylize') || '50' };
+    }
+    function toggleConfig() {
+      const m = document.getElementById('config-modal');
+      if (m.classList.contains('hidden')) {
+        document.getElementById('api-key-input').value = getConfig().apiKey;
+        document.getElementById('stylize-value').value = getConfig().stylize;
+      }
+      m.classList.toggle('hidden');
+    }
+    function saveConfig() {
+      localStorage.setItem('lune_api_key', document.getElementById('api-key-input').value);
+      localStorage.setItem('lune_stylize', document.getElementById('stylize-value').value);
+      toggleConfig();
+    }
+
+    // Image handling
+    function handleImageSelect(e) { if (e.target.files[0]) processImage(e.target.files[0]); }
+    function processImage(file) {
+      if (!file.type.match(/image\/(png|jpeg|jpg)/)) return alert('Use PNG ou JPEG');
+      if (file.size > 20*1024*1024) return alert('Máximo 20MB');
+      const r = new FileReader();
+      r.onload = e => { currentImage = e.target.result; currentImageBase64 = e.target.result.split(',')[1]; showAnalysis(); analyzeImage(); };
+      r.readAsDataURL(file);
+    }
+    function showAnalysis() {
+      document.getElementById('upload-section').classList.add('hidden');
+      document.getElementById('analysis-section').classList.remove('hidden');
+      document.getElementById('preview-image').src = currentImage;
+      document.getElementById('comercial-card').classList.add('hidden');
+    }
+    function resetAnalysis() {
+      currentImage = currentImageBase64 = currentAnalysis = currentPrompts = null;
+      document.getElementById('upload-section').classList.remove('hidden');
+      document.getElementById('analysis-section').classList.add('hidden');
+      document.getElementById('image-input').value = '';
+      document.getElementById('loading-state').classList.add('hidden');
+      document.getElementById('analysis-results').classList.add('hidden');
+      document.getElementById('error-state').classList.add('hidden');
+      document.getElementById('prompts-section').classList.add('hidden');
+    }
+
+    // AI Analysis
+    async function analyzeImage() {
+      const cfg = getConfig();
+      if (!cfg.apiKey) { toggleConfig(); return alert('Configure sua API key!'); }
+      document.getElementById('loading-state').classList.remove('hidden');
+      document.getElementById('analysis-results').classList.add('hidden');
+      document.getElementById('error-state').classList.add('hidden');
+      document.getElementById('analysis-status').textContent = 'Analisando...';
+
+      const prompt = `Você é um ANALISTA TÉCNICO ESPECIALISTA em técnicas pictóricas tradicionais, trabalhando para a marca LUNE - moda feminina do Ceará com estampas artísticas.
+
+SUA MISSÃO: Fazer uma DESCONSTRUÇÃO TÉCNICA PROFUNDA da imagem, identificando CADA DETALHE da técnica utilizada para que os prompts gerados reproduzam FIELMENTE o estilo visual.
+
+NÃO identifique espécies, pessoas ou objetos específicos. Foque 100% na TÉCNICA de pintura/ilustração.
+
+IDENTIDADE LUNE: 70% espaço branco, 30% elementos; paletas vibrantes sofisticadas; referências nordestinas; técnicas manuais.
+
+═══════════════════════════════════════════════════════════════
+RESPONDA EM PORTUGUÊS seguindo RIGOROSAMENTE esta estrutura:
+═══════════════════════════════════════════════════════════════
+
+### 📊 CLASSIFICAÇÃO COMERCIAL
+**Potencial:** [XX% Comercial / XX% Tendência]
+**Justificativa:** [explicar em 2 linhas]
+
+### 🎨 ESTILO & PERÍODO
+**Movimento artístico:** [ex: Impressionismo botânico, Ilustração naturalista vitoriana, etc]
+**Período aproximado:** [década/século]
+**Artistas de referência:** [2-3 nomes que trabalham técnica similar]
+
+### 🔬 DESCONSTRUÇÃO TÉCNICA DETALHADA
+
+Esta é a seção MAIS IMPORTANTE. Analise CADA aspecto com PRECISÃO CIRÚRGICA:
+
+**MEIO/TINTA:**
+- Tipo exato: [aquarela transparente / guache opaco / acrílica / óleo / técnica mista / digital que imita tradicional]
+- Diluição: [muito diluída/aguada | média | concentrada/pastosa | chapada/opaca]
+- Acabamento: [fosco | acetinado | brilhante]
+- Transparência: [totalmente transparente | semi-transparente | semi-opaco | totalmente opaco]
+
+**PINCELADAS:**
+- Visibilidade: [invisíveis/blended | sutilmente visíveis | claramente visíveis | expressivas/gestuais]
+- Direção: [seguem a forma orgânica | direcionais paralelas | multidirecionais | caóticas/expressivas]
+- Tamanho predominante: [pincel fino (detalhes) | médio (preenchimento) | largo (lavadas) | misto]
+- Técnica de aplicação: [molhada (wet) | seca (dry brush) | mista | esfregada]
+- Bordas das pinceladas: [suaves/esfumadas | médias | duras/definidas]
+
+**APLICAÇÃO DE COR:**
+- Método: [wet-on-wet (molhado sobre molhado) | wet-on-dry (molhado sobre seco) | camadas sobrepostas | alla prima (direto)]
+- Transições: [gradientes suaves e contínuos | transições médias | blocos de cor chapados | contrastes abruptos]
+- Mistura: [cores se fundem na superfície | cores misturadas na paleta | cores justapostas sem mistura]
+- Saturação: [cores muito diluídas/pastel | saturação média | cores vibrantes/saturadas | cores intensas/chapadas]
+
+**CAMADAS E PROFUNDIDADE:**
+- Número de camadas visíveis: [camada única | 2-3 camadas | múltiplas camadas complexas]
+- Transparência entre camadas: [muito transparente (vê todas camadas) | parcial | opaco (cobre camada anterior)]
+- Papel/fundo: [muito visível através da pintura | parcialmente visível | totalmente coberto]
+- Construção: [do claro para escuro | do escuro para claro | sem hierarquia]
+
+**TEXTURA:**
+- Superfície do papel: [lisa/hot press | granulada média/cold press | rugosa/rough | outro suporte]
+- Textura do papel visível: [muito evidente | sutilmente visível | não visível]
+- Efeitos especiais: [nenhum | granulação de pigmento | blooms/backruns | sal | splatter | outros: especificar]
+- Textura nas pinceladas: [lisas | com textura sutil | texturadas (dry brush) | muito texturadas]
+
+**LINHA E CONTORNO:**
+- Presença: [sem contorno (só manchas) | contorno sutil | contorno definido | contorno proeminente]
+- Ferramenta: [mesmo pincel | pincel fino | nanquim/tinta | caneta | lápis | digital]
+- Momento: [antes da cor | depois da cor | integrado | variável]
+- Estilo da linha: [orgânica/irregular | controlada/precisa | gestual/expressiva | técnica/uniforme]
+
+**DETALHES:**
+- Nível: [mínimo/sugestivo | moderado | alto/detalhista | hiper-detalhado]
+- Técnica dos detalhes: [mesmo pincel menor | pincel fino | caneta/nanquim | pontos | traços secos]
+- Hierarquia visual: [foco uniforme | área focal definida | degradê de detalhe centro-borda]
+
+**ESTILO GERAL:**
+- Abordagem: [realista | naturalista | estilizado | naïf/ingênuo | abstrato | decorativo]
+- Gênero: [ilustração botânica científica | ilustração editorial | arte decorativa | fine art | folk art]
+- Acabamento: [polido/refinado | artesanal com charme | solto/expressivo | inacabado proposital]
+- Mood: [delicado/etéreo | vibrante/alegre | dramático | nostálgico | contemporâneo]
+
+### 🌈 PALETA DE CORES
+[Liste 6 cores principais com nome e código hex]
+- Cor 1: [nome] #XXXXXX
+- Cor 2: [nome] #XXXXXX
+- Cor 3: [nome] #XXXXXX
+- Cor 4: [nome] #XXXXXX
+- Cor 5: [nome] #XXXXXX
+- Cor 6: [nome] #XXXXXX
+
+**Harmonia:** [complementar | análoga | tríade | split-complementar | monocromática]
+**Temperatura dominante:** [quente | fria | neutra | mista equilibrada]
+**Contraste tonal:** [baixo/suave | médio | alto/dramático]
+
+### 🌸 ELEMENTOS VISUAIS
+**Motivos identificados:** [listar sem especificar espécies - ex: "flores arredondadas", "folhagem alongada"]
+**Composição:** [dispersa | agrupada | radial | diagonal | orgânica livre]
+**Escala dos elementos:** [pequena/delicada | média | grande/bold | mista]
+**Simplificação LUNE:** [como adaptar mantendo 70% respiro]
+
+### 🌵 ADAPTAÇÃO NORDESTINA
+**Flora sugerida:** [elementos do Ceará que combinam com a técnica]
+**Fauna sugerida:** [se aplicável]
+**Conexão cultural:** [como unir a técnica com identidade nordestina]
+
+### 👗 APLICAÇÃO EM PEÇAS
+**Peças ideais:** [3-4 tipos de peça LUNE]
+**Tipo de rapport:** [corrido | localizado | barra | placement | engineered]
+**Escala sugerida:** [pequena | média | grande | variada]
+
+### ⚡ INSIGHT CRIATIVO
+[Uma ideia original e específica para coleção LUNE baseada nesta técnica]
+
+═══════════════════════════════════════════════════════════════
+### 🎨 PROMPTS MIDJOURNEY
+═══════════════════════════════════════════════════════════════
+
+REGRA FUNDAMENTAL: Os prompts abaixo devem refletir EXATAMENTE a técnica descrita na Desconstrução Técnica acima. 
+NÃO use termos genéricos. Cada palavra técnica deve vir da sua análise real da imagem.
+
+**ESTRUTURA DO PROMPT TÉCNICO:**
+Monte a descrição técnica concatenando os achados reais:
+[meio/tinta] + [visibilidade e tipo de pinceladas] + [método de aplicação de cor] + [transparência e camadas] + [textura] + [linha/contorno] + [estilo geral]
+
+**1. ESTAMPA CORRIDA (Rapport):**
+[Descreva elementos + cores. Em seguida, COPIE a descrição técnica que você montou acima traduzida para inglês, adaptando para: seamless textile pattern, generous white space (70%), tileable repeat design, --stylize ${cfg.stylize} --ar 1:1 --tile --v 7]
+
+**2. ESTAMPA LOCALIZADA:**
+[Descreva composição + cores. Use a MESMA descrição técnica em inglês, adaptando para: placed print composition, centered arrangement, clean white background, --stylize ${cfg.stylize} --ar 1:1 --v 7]
+
+**3. BARRA/CERCADURA:**
+[Descreva elementos em faixa + cores. Use a MESMA descrição técnica em inglês, adaptando para: horizontal border pattern, decorative band design, --stylize ${cfg.stylize} --ar 3:1 --v 7]
+
+**4. TEMPLATE SORA (em português):**
+Este é um TEMPLATE com placeholders [ELEMENTO] e [CORES] para o usuário preencher depois.
+
+Formato OBRIGATÓRIO - copie a descrição técnica que você criou acima em português:
+
+"[ELEMENTO], em [CORES], [COLE AQUI TODA A DESCRIÇÃO TÉCNICA DETALHADA EM PORTUGUÊS - tipo de tinta, pinceladas, aplicação, camadas, textura, linha, estilo - EXATAMENTE como você descreveu na análise], ELEMENTO ÚNICO CENTRALIZADO em fundo branco puro, amplo espaço negativo ao redor, sem outros elementos, sem texto, sem decorações extras, sem sombra projetada"
+
+VERIFICAÇÃO FINAL: Antes de entregar, confira se os prompts contêm:
+✓ Tipo específico de tinta/meio (não apenas "watercolor")
+✓ Descrição das pinceladas (visibilidade, direção, técnica)
+✓ Método de aplicação (wet-on-wet, camadas, etc)
+✓ Nível de transparência/opacidade
+✓ Textura do papel se visível
+✓ Presença e tipo de linha/contorno
+✓ Estilo geral (naturalista, naïf, etc)
+
+Se algum item estiver genérico, REESCREVA com a informação específica da sua análise.`;
+
+      try {
+        const res = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cfg.apiKey },
+          body: JSON.stringify({
+            model: 'gpt-4o',
+            messages: [
+              { role: 'system', content: prompt },
+              { role: 'user', content: [
+                { type: 'text', text: 'Faça uma DESCONSTRUÇÃO TÉCNICA COMPLETA desta ilustração. Analise CADA aspecto: tipo de tinta/meio, pinceladas (visibilidade, direção, tamanho), aplicação de cor (método, transições, mistura), camadas, textura do papel, linha/contorno, e estilo geral. Seja EXTREMAMENTE ESPECÍFICO - não use termos genéricos. Os prompts gerados devem reproduzir FIELMENTE a técnica observada.' },
+                { type: 'image_url', image_url: { url: 'data:image/jpeg;base64,' + currentImageBase64, detail: 'high' } }
+              ]}
+            ],
+            max_tokens: 6000, temperature: 0.7
+          })
+        });
+        if (!res.ok) throw new Error((await res.json()).error?.message || 'Erro API');
+        currentAnalysis = (await res.json()).choices[0].message.content;
+        displayAnalysis(currentAnalysis);
+        document.getElementById('analysis-status').textContent = '✓ Completa';
+      } catch (e) {
+        document.getElementById('loading-state').classList.add('hidden');
+        document.getElementById('error-state').classList.remove('hidden');
+        document.getElementById('error-message').textContent = e.message;
+        document.getElementById('analysis-status').textContent = '✗ Erro';
+      }
+    }
+
+    function displayAnalysis(content) {
+      // Badge comercial
+      const cm = content.match(/\*\*Potencial:\*\*\s*\[?(\d+)%\s*Comercial/i);
+      if (cm) {
+        const pct = parseInt(cm[1]);
+        let cls = 'comercial-medium', txt = '⚖️ Equilibrado';
+        if (pct >= 70) { cls = 'comercial-high'; txt = '💰 Alta Comercialidade'; }
+        else if (pct <= 30) { cls = 'comercial-low'; txt = '🔮 Tendência'; }
+        document.getElementById('comercial-badge-container').innerHTML = '<span class="comercial-badge ' + cls + '">' + txt + ' (' + pct + '%)</span>';
+        const jm = content.match(/\*\*Justificativa:\*\*\s*([^\n*]+)/i);
+        if (jm) document.getElementById('comercial-justificativa').textContent = jm[1].trim();
+        document.getElementById('comercial-card').classList.remove('hidden');
+      }
+      // Format content
+      let html = content.replace(/###\s*(.*)/g, '<h3>$1</h3>').replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
+      const pi = html.indexOf('PROMPTS MIDJOURNEY');
+      document.getElementById('analysis-content').innerHTML = '<p>' + (pi > -1 ? html.substring(0, pi) : html) + '</p>';
+      // Extract prompts
+      currentPrompts = extractPrompts(content);
+      displayPrompts(currentPrompts);
+      document.getElementById('loading-state').classList.add('hidden');
+      document.getElementById('analysis-results').classList.remove('hidden');
+    }
+
+    function extractPrompts(c) {
+      const p = { corrida: '', localizada: '', barra: '', elemento: '' };
+      const m1 = c.match(/\*\*1\.\s*ESTAMPA CORRIDA[^:]*:\*\*\s*\n([^\n]*(?:\n(?!\*\*2)[^\n]*)*)/i);
+      const m2 = c.match(/\*\*2\.\s*ESTAMPA LOCALIZADA[^:]*:\*\*\s*\n([^\n]*(?:\n(?!\*\*3)[^\n]*)*)/i);
+      const m3 = c.match(/\*\*3\.\s*BARRA[^:]*:\*\*\s*\n([^\n]*(?:\n(?!\*\*4)[^\n]*)*)/i);
+      const m4 = c.match(/\*\*4\.\s*ELEMENTO[^:]*:\*\*\s*\n([^\n]*(?:\n(?!---|\*\*)[^\n]*)*)/i);
+      if (m1) p.corrida = m1[1].trim().replace(/^\[|\]$/g, '');
+      if (m2) p.localizada = m2[1].trim().replace(/^\[|\]$/g, '');
+      if (m3) p.barra = m3[1].trim().replace(/^\[|\]$/g, '');
+      if (m4) p.elemento = m4[1].trim().replace(/^\[|\]$/g, '');
+      return p;
+    }
+
+    function displayPrompts(p) {
+      const types = [
+        { k: 'corrida', t: '🔄 Estampa Corrida', d: 'Padrão seamless para Midjourney' },
+        { k: 'localizada', t: '📍 Estampa Localizada', d: 'Composição posicionada para Midjourney' },
+        { k: 'barra', t: '➖ Barra/Cercadura', d: 'Border pattern para Midjourney' },
+        { k: 'elemento', t: '✨ Elemento Único (Sora)', d: 'Template com [ELEMENTO] e [CORES] - técnica da referência' }
+      ];
+      document.getElementById('prompts-container').innerHTML = types.map(t =>
+        '<div class="prompt-box"><div class="prompt-header"><div><span class="prompt-title">' + t.t + '</span><p class="text-[10px] text-[#556677] mt-1">' + t.d + '</p></div><span class="prompt-copy" onclick="copyPrompt(\'' + t.k + '\')">📋</span></div><div class="prompt-text">' + (p[t.k] || 'N/A') + '</div></div>'
+      ).join('');
+      document.getElementById('prompts-section').classList.remove('hidden');
+    }
+
+    function copyPrompt(k) { if (currentPrompts?.[k]) { navigator.clipboard.writeText(currentPrompts[k]); alert('Copiado!'); } }
+    function copyAllPrompts() {
+      if (!currentPrompts) return;
+      navigator.clipboard.writeText('=== CORRIDA ===\n' + currentPrompts.corrida + '\n\n=== LOCALIZADA ===\n' + currentPrompts.localizada + '\n\n=== BARRA ===\n' + currentPrompts.barra + '\n\n=== ELEMENTO ===\n' + currentPrompts.elemento);
+      alert('Todos copiados!');
+    }
+    function retryAnalysis() { analyzeImage(); }
+
+    // History
+    function saveToHistory() {
+      if (!currentImage || !currentAnalysis) return alert('Aguarde a análise!');
+      try {
+        // Comprimir imagem para caber no localStorage
+        const compressedImage = compressImage(currentImage);
+        history.unshift({ 
+          id: Date.now().toString(), 
+          image: compressedImage, 
+          analysis: currentAnalysis, 
+          prompts: currentPrompts, 
+          notes: document.getElementById('personal-notes').value, 
+          date: new Date().toISOString() 
+        });
+        if (history.length > 50) history.pop();
+        localStorage.setItem('lune_history', JSON.stringify(history));
+        renderHistory();
+        alert('✓ Salvo!');
+      } catch (e) {
+        console.error('Erro ao salvar:', e);
+        // Se der erro de quota, tenta remover itens antigos
+        if (e.name === 'QuotaExceededError' || e.message.includes('quota')) {
+          if (history.length > 1) {
+            history.pop();
+            alert('Espaço cheio! Removendo análise antiga e tentando novamente...');
+            saveToHistory();
+          } else {
+            alert('Erro: Imagem muito grande para salvar. Tente uma imagem menor.');
+          }
+        } else {
+          alert('Erro ao salvar: ' + e.message);
+        }
+      }
+    }
+    
+    function compressImage(base64) {
+      // Criar canvas para redimensionar
+      return new Promise ? base64 : base64; // Fallback simples por enquanto
+    }
+    
+    // Função async para comprimir imagem antes de salvar
+    async function saveToHistoryAsync() {
+      if (!currentImage || !currentAnalysis) return alert('Aguarde a análise!');
+      try {
+        // Comprimir imagem usando canvas
+        const compressed = await resizeImage(currentImage, 400);
+        history.unshift({ 
+          id: Date.now().toString(), 
+          image: compressed, 
+          analysis: currentAnalysis, 
+          prompts: currentPrompts, 
+          notes: document.getElementById('personal-notes').value, 
+          date: new Date().toISOString() 
+        });
+        if (history.length > 50) history.pop();
+        localStorage.setItem('lune_history', JSON.stringify(history));
+        renderHistory();
+        alert('✓ Salvo!');
+      } catch (e) {
+        console.error('Erro ao salvar:', e);
+        alert('Erro ao salvar: ' + e.message);
+      }
+    }
+    
+    function resizeImage(base64, maxSize) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let w = img.width, h = img.height;
+          if (w > h) { if (w > maxSize) { h *= maxSize / w; w = maxSize; } }
+          else { if (h > maxSize) { w *= maxSize / h; h = maxSize; } }
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', 0.7));
+        };
+        img.onerror = () => resolve(base64);
+        img.src = base64;
+      });
+    }
+    function renderHistory() {
+      document.getElementById('history-count').textContent = history.length + ' análise' + (history.length !== 1 ? 's' : '');
+      if (!history.length) { document.getElementById('history-grid').innerHTML = ''; document.getElementById('history-empty').classList.remove('hidden'); return; }
+      document.getElementById('history-empty').classList.add('hidden');
+      document.getElementById('history-grid').innerHTML = history.map(h =>
+        '<div onclick="openHistory(\'' + h.id + '\')" class="cursor-pointer group bg-[#161d26] rounded-xl overflow-hidden border border-[#2a3540] hover:border-[#00d4aa]/50"><div class="aspect-square overflow-hidden"><img src="' + h.image + '" class="w-full h-full object-cover group-hover:scale-105 transition-transform"></div><div class="p-2"><p class="text-[10px] text-[#556677]">' + new Date(h.date).toLocaleDateString('pt-BR') + '</p></div></div>'
+      ).join('');
+    }
+    function openHistory(id) {
+      const h = history.find(x => x.id === id); if (!h) return;
+      currentHistoryId = id;
+      document.getElementById('history-modal-title').textContent = new Date(h.date).toLocaleDateString('pt-BR');
+      document.getElementById('history-modal-img').src = h.image;
+      document.getElementById('history-modal-content').innerHTML = '<p>' + h.analysis.replace(/###\s*(.*)/g, '<h3>$1</h3>').replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>') + '</p>';
+      document.getElementById('history-modal').classList.remove('hidden');
+    }
+    function closeHistoryModal() { document.getElementById('history-modal').classList.add('hidden'); currentHistoryId = null; }
+    function deleteHistory() {
+      if (!currentHistoryId || !confirm('Excluir?')) return;
+      history = history.filter(h => h.id !== currentHistoryId);
+      localStorage.setItem('lune_history', JSON.stringify(history));
+      closeHistoryModal(); renderHistory();
+    }
+    function exportPDF() {
+      if (!currentAnalysis) return;
+      const el = document.createElement('div');
+      el.style.cssText = 'padding:40px;font-family:Inter;color:#1a1a1a;font-size:12px;';
+      el.innerHTML = '<h1 style="font-size:24px;text-align:center;">LUNE Studio</h1><p style="text-align:center;color:#666;">' + new Date().toLocaleDateString('pt-BR') + '</p><img src="' + currentImage + '" style="max-width:100%;max-height:200px;display:block;margin:20px auto;"><div>' + currentAnalysis.replace(/\*\*/g, '').replace(/###/g, '\n') + '</div>';
+      html2pdf().set({ margin: 10, filename: 'lune_' + Date.now() + '.pdf' }).from(el).save();
+    }
+
+    // Moodboards
+    function renderMoodboards() {
+      if (!moodboards.length) { document.getElementById('moodboards-grid').innerHTML = ''; document.getElementById('moodboards-empty').classList.remove('hidden'); return; }
+      document.getElementById('moodboards-empty').classList.add('hidden');
+      document.getElementById('moodboards-grid').innerHTML = moodboards.map(m =>
+        '<div class="bg-[#161d26] rounded-2xl border border-[#2a3540] p-4"><h3 class="font-medium mb-2">' + m.name + '</h3><p class="text-xs text-[#556677]">' + m.items.length + ' refs</p><div class="grid grid-cols-4 gap-1 mt-3">' + m.items.slice(0,4).map(i => '<img src="' + i.image + '" class="aspect-square object-cover rounded">').join('') + '</div></div>'
+      ).join('');
+    }
+    function createMoodboard() { document.getElementById('moodboard-name').value = ''; document.getElementById('moodboard-modal').classList.remove('hidden'); }
+    function closeMoodboardModal() { document.getElementById('moodboard-modal').classList.add('hidden'); }
+    function saveMoodboard() {
+      const n = document.getElementById('moodboard-name').value.trim(); if (!n) return alert('Digite um nome');
+      moodboards.push({ id: Date.now().toString(), name: n, items: [] });
+      localStorage.setItem('lune_moodboards', JSON.stringify(moodboards));
+      closeMoodboardModal(); renderMoodboards();
+    }
+    function addToMoodboard() {
+      if (!currentImage || !currentAnalysis) return;
+      if (!moodboards.length) { createMoodboard(); return; }
+      document.getElementById('select-moodboard-list').innerHTML = moodboards.map(m =>
+        '<button onclick="addToMB(\'' + m.id + '\')" class="w-full p-3 text-left hover:bg-[#1c252f] rounded-lg">' + m.name + ' <span class="text-xs text-[#556677]">(' + m.items.length + ')</span></button>'
+      ).join('');
+      document.getElementById('select-moodboard-modal').classList.remove('hidden');
+    }
+    function closeSelectMoodboard() { document.getElementById('select-moodboard-modal').classList.add('hidden'); }
+    function addToMB(id) {
+      const m = moodboards.find(x => x.id === id); if (!m) return;
+      m.items.push({ id: Date.now().toString(), image: currentImage, analysis: currentAnalysis });
+      localStorage.setItem('lune_moodboards', JSON.stringify(moodboards));
+      closeSelectMoodboard(); alert('Adicionado!');
+    }
+
+    // Compare
+    function renderCompare() {
+      compareItems.forEach((it, i) => {
+        const s = document.getElementById('compare-slot-' + (i+1));
+        s.innerHTML = it ? '<img src="' + it.image + '" class="w-full h-full object-cover rounded-lg">' : '<p class="text-[#556677]">Clique para selecionar</p>';
+      });
+      document.getElementById('compare-results').classList.toggle('hidden', !compareItems[0] || !compareItems[1]);
+    }
+    function selectCompare(slot) {
+      if (!history.length) return alert('Salve análises primeiro');
+      compareSlot = slot;
+      document.getElementById('compare-select-grid').innerHTML = history.map(h =>
+        '<div onclick="setCompare(\'' + h.id + '\')" class="cursor-pointer rounded-lg overflow-hidden hover:ring-2 ring-[#00d4aa]"><img src="' + h.image + '" class="aspect-square object-cover"></div>'
+      ).join('');
+      document.getElementById('compare-modal').classList.remove('hidden');
+    }
+    function closeCompareModal() { document.getElementById('compare-modal').classList.add('hidden'); }
+    function setCompare(id) {
+      const h = history.find(x => x.id === id); if (h && compareSlot) compareItems[compareSlot - 1] = h;
+      closeCompareModal(); renderCompare();
+    }
+    async function generateCompare() {
+      if (!compareItems[0] || !compareItems[1]) return;
+      const cfg = getConfig(); if (!cfg.apiKey) return alert('Configure API key');
+      const cd = document.getElementById('compare-content');
+      cd.classList.remove('hidden'); cd.innerHTML = '<p class="text-[#8899a6]">Comparando...</p>';
+      try {
+        const res = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cfg.apiKey },
+          body: JSON.stringify({ model: 'gpt-4o', messages: [{ role: 'user', content: 'Compare duas referências visuais para estampas LUNE. Destaque: similaridades, diferenças, qual funciona melhor, se podem ser combinadas.' }], max_tokens: 1000 })
+        });
+        const d = await res.json();
+        cd.innerHTML = '<div class="prose">' + d.choices[0].message.content.replace(/###/g, '<h3>').replace(/\*\*/g, '<strong>').replace(/\n/g, '<br>') + '</div>';
+      } catch (e) { cd.innerHTML = '<p class="text-red-400">' + e.message + '</p>'; }
+    }
+
+    // Modelagens
+    function renderModelagemHistory() {
+      const g = document.getElementById('modelagem-history');
+      if (g && history.length) g.innerHTML = history.slice(0,8).map(h => '<div onclick="selectModelagemHist(\'' + h.id + '\')" class="cursor-pointer rounded overflow-hidden hover:ring-2 ring-[#00d4aa]"><img src="' + h.image + '" class="aspect-square object-cover"></div>').join('');
+    }
+    function handleModelagemImage(e) {
+      const f = e.target.files[0]; if (!f) return;
+      const r = new FileReader();
+      r.onload = ev => { modelagemImage = ev.target.result; showModelagemPreview(); };
+      r.readAsDataURL(f);
+    }
+    function selectModelagemHist(id) { const h = history.find(x => x.id === id); if (h) { modelagemImage = h.image; showModelagemPreview(); } }
+    function showModelagemPreview() {
+      document.getElementById('modelagem-preview-img').src = modelagemImage;
+      document.getElementById('modelagem-preview').classList.remove('hidden');
+      document.getElementById('modelagem-drop-zone').classList.add('hidden');
+    }
+    function clearModelagem() {
+      modelagemImage = null;
+      document.getElementById('modelagem-preview').classList.add('hidden');
+      document.getElementById('modelagem-drop-zone').classList.remove('hidden');
+    }
+    function selectOpt(type, val) {
+      modelagemOpts[type] = val;
+      document.querySelectorAll('.opt-btn[data-opt="' + type + '"]').forEach(b => {
+        b.classList.toggle('border-[#00d4aa]', b.dataset.val === val);
+        b.classList.toggle('bg-[#00d4aa]/20', b.dataset.val === val);
+      });
+    }
+    function gerarPromptSora() {
+      const tipo = document.getElementById('tipo-peca').value;
+      const ocasiao = document.getElementById('ocasiao').value;
+      const dec = modelagemOpts.decote || 'V';
+      const man = modelagemOpts.manga || 'sem manga';
+      const sil = modelagemOpts.silhueta || 'fluida';
+      const prompt = `Como Diretor Criativo da LUNE, desenvolva ${tipo.replace('-', ' ')} com:
+
+• Decote: ${dec}
+• Manga: ${man}
+• Silhueta: ${sil}
+• Ocasião: ${ocasiao}
+
+Identidade LUNE: tropical poético, feminino, autoral, nordestino.
+Inspirações: Farm Rio, Isabel Marant, Chloé, Agua Bendita.
+
+A peça deve ter apelo comercial sem perder autenticidade.
+Paleta inspirada na referência, cores que induzem bem-estar.
+
+✍️ Técnica: croqui em aquarela e nanquim Winsor & Newton, fundo off-white, estilo clássico europeu.`;
+      document.getElementById('prompt-sora-output').textContent = prompt;
+    }
+    function copyPromptSora() {
+      const t = document.getElementById('prompt-sora-output').textContent;
+      if (t) { navigator.clipboard.writeText(t); alert('Copiado!'); }
+    }
+
+    // Drag & Drop
+    function setupDragDrop() {
+      const dz = document.getElementById('drop-zone'); if (!dz) return;
+      ['dragenter','dragover','dragleave','drop'].forEach(e => dz.addEventListener(e, ev => { ev.preventDefault(); ev.stopPropagation(); }));
+      ['dragenter','dragover'].forEach(e => dz.addEventListener(e, () => dz.classList.add('dragover')));
+      ['dragleave','drop'].forEach(e => dz.addEventListener(e, () => dz.classList.remove('dragover')));
+      dz.addEventListener('drop', e => { if (e.dataTransfer.files[0]) processImage(e.dataTransfer.files[0]); });
+    }
+
+    // Init
+    document.addEventListener('DOMContentLoaded', () => {
+      setupDragDrop(); renderHistory();
+      if (!getConfig().apiKey) setTimeout(() => { alert('Configure sua API key!'); toggleConfig(); }, 500);
+    });
+  </script>
+</body>
+</html>
