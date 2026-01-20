@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LUNE Placê v2</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #0a0a0f;
+      color: #e8e8e8;
+      min-height: 100vh;
+      padding: 20px;
+      padding-bottom: 100px;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      padding: 30px 0 40px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 8px;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .logo span {
+      color: #10b981;
+    }
+
+    .subtitle {
+      font-size: 12px;
+      color: #888;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .tagline {
+      font-size: 13px;
+      color: #666;
+      margin-top: 12px;
+      font-style: italic;
+    }
+
+    .version {
+      font-size: 10px;
+      color: #10b981;
+      margin-top: 8px;
+    }
+
+    /* API Key Section */
+    .api-section {
+      background: rgba(16,185,129,0.1);
+      border: 1px solid rgba(16,185,129,0.3);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 30px;
+    }
+
+    .api-section.configured {
+      background: rgba(34,197,94,0.1);
+      border-color: rgba(34,197,94,0.3);
+    }
+
+    .api-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .api-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #10b981;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .api-section.configured .api-label {
+      color: #22c55e;
+    }
+
+    .api-status {
+      font-size: 11px;
+      color: #888;
+    }
+
+    .api-input-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .api-input-row input {
+      flex: 1;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: #fff;
+      font-size: 13px;
+      font-family: monospace;
+    }
+
+    .api-input-row input:focus {
+      outline: none;
+      border-color: #10b981;
+    }
+
+    .api-btn {
+      background: #10b981;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      color: #000;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .api-btn:hover {
+      background: #34d399;
+    }
+
+    /* Section */
+    .section {
+      margin-bottom: 28px;
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #888;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.1);
+    }
+
+    /* Style Cards */
+    .style-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .style-card {
+      background: rgba(255,255,255,0.03);
+      border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 14px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .style-card:hover {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    .style-card.selected {
+      background: rgba(16,185,129,0.1);
+      border-color: #10b981;
+    }
+
+    .style-icon {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .style-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .style-desc {
+      font-size: 11px;
+      color: #888;
+      line-height: 1.4;
+    }
+
+    /* Input Fields */
+    .input-group {
+      margin-bottom: 16px;
+    }
+
+    .input-label {
+      font-size: 12px;
+      color: #aaa;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .text-input {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: #fff;
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    .text-input:focus {
+      outline: none;
+      border-color: #10b981;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .text-input::placeholder {
+      color: #555;
+    }
+
+    /* Quick Tags */
+    .quick-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .quick-tag {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 11px;
+      color: #aaa;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .quick-tag:hover {
+      background: rgba(16,185,129,0.15);
+      border-color: rgba(16,185,129,0.4);
+      color: #10b981;
+    }
+
+    /* Palette */
+    .palette-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .palette-card {
+      background: rgba(255,255,255,0.03);
+      border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .palette-card:hover {
+      border-color: rgba(255,255,255,0.25);
+    }
+
+    .palette-card.selected {
+      border-color: #10b981;
+      background: rgba(16,185,129,0.1);
+    }
+
+    .palette-colors {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+
+    .palette-color {
+      flex: 1;
+      height: 24px;
+      border-radius: 4px;
+    }
+
+    .palette-name {
+      font-size: 11px;
+      color: #aaa;
+      text-align: center;
+    }
+
+    /* Custom Colors */
+    .custom-colors {
+      margin-top: 16px;
+      padding: 16px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 12px;
+    }
+
+    .custom-toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      margin-bottom: 12px;
+    }
+
+    .custom-toggle input {
+      width: 18px;
+      height: 18px;
+      accent-color: #10b981;
+    }
+
+    .custom-toggle span {
+      font-size: 13px;
+      color: #aaa;
+    }
+
+    .color-inputs {
+      display: none;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .color-inputs.visible {
+      display: grid;
+    }
+
+    .color-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .color-input-group label {
+      font-size: 10px;
+      color: #666;
+      text-transform: uppercase;
+    }
+
+    .color-picker-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .color-picker {
+      width: 40px;
+      height: 32px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: transparent;
+    }
+
+    .color-hex-input {
+      flex: 1;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 6px;
+      padding: 8px;
+      color: #fff;
+      font-size: 12px;
+      font-family: monospace;
+    }
+
+    /* Density Slider */
+    .slider-container {
+      padding: 16px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 12px;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .slider-label {
+      font-size: 12px;
+      color: #aaa;
+    }
+
+    .slider-value {
+      font-size: 12px;
+      color: #10b981;
+      font-weight: 600;
+    }
+
+    .density-slider {
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255,255,255,0.1);
+      appearance: none;
+      cursor: pointer;
+    }
+
+    .density-slider::-webkit-slider-thumb {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #10b981;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(16,185,129,0.4);
+    }
+
+    .slider-hints {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      font-size: 10px;
+      color: #666;
+    }
+
+    /* Format Options */
+    .format-options {
+      display: flex;
+      gap: 10px;
+    }
+
+    .format-option {
+      flex: 1;
+      background: rgba(255,255,255,0.03);
+      border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .format-option:hover {
+      border-color: rgba(255,255,255,0.25);
+    }
+
+    .format-option.selected {
+      border-color: #10b981;
+      background: rgba(16,185,129,0.1);
+    }
+
+    .format-icon {
+      font-size: 24px;
+      margin-bottom: 6px;
+    }
+
+    .format-name {
+      font-size: 12px;
+      color: #aaa;
+    }
+
+    .format-ratio {
+      font-size: 10px;
+      color: #666;
+      margin-top: 2px;
+    }
+
+    /* Generate Button */
+    .generate-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #10b981, #059669);
+      border: none;
+      border-radius: 14px;
+      padding: 18px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 30px;
+    }
+
+    .generate-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(16,185,129,0.3);
+    }
+
+    /* Result */
+    .result-section {
+      margin-top: 30px;
+      display: none;
+    }
+
+    .result-section.visible {
+      display: block;
+    }
+
+    .result-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .result-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #10b981;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .result-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .result-btn {
+      background: rgba(16,185,129,0.2);
+      border: 1px solid rgba(16,185,129,0.4);
+      border-radius: 8px;
+      padding: 8px 14px;
+      color: #10b981;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .result-btn:hover {
+      background: #10b981;
+      color: #000;
+    }
+
+    .prompt-box {
+      background: rgba(0,0,0,0.4);
+      border-radius: 12px;
+      padding: 16px;
+      font-family: 'SF Mono', monospace;
+      font-size: 12px;
+      line-height: 1.7;
+      color: #ccc;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .prompt-box:hover {
+      background: rgba(0,0,0,0.6);
+    }
+
+    /* Library */
+    .library-section {
+      margin-top: 50px;
+      padding-top: 30px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .library-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .library-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #888;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .clear-library {
+      font-size: 11px;
+      color: #666;
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .library-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .library-item {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .library-item:hover {
+      border-color: rgba(16,185,129,0.4);
+      background: rgba(255,255,255,0.05);
+    }
+
+    .library-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .library-item-style {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .library-item-icon {
+      font-size: 18px;
+    }
+
+    .library-item-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .library-item-date {
+      font-size: 10px;
+      color: #666;
+    }
+
+    .library-item-elements {
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 8px;
+    }
+
+    .library-item-palette {
+      display: flex;
+      gap: 4px;
+    }
+
+    .library-palette-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .library-item-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .library-action {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 10px;
+      color: #aaa;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .library-action:hover {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+
+    .library-action.delete:hover {
+      background: rgba(239,68,68,0.2);
+      border-color: #ef4444;
+      color: #ef4444;
+    }
+
+    .library-empty {
+      text-align: center;
+      padding: 40px;
+      color: #555;
+      font-size: 13px;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #10b981;
+      color: #000;
+      padding: 14px 28px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 600;
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* Responsive */
+    @media (max-width: 500px) {
+      .style-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .palette-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .format-options {
+        flex-wrap: wrap;
+      }
+      
+      .format-option {
+        min-width: calc(50% - 5px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">LUNE <span>PLACÊ</span></div>
+      <div class="subtitle">Estampas Posicionadas</div>
+      <div class="tagline">"Composições únicas que contam histórias"</div>
+      <div class="version">v2.0 — Técnica Detalhada</div>
+    </header>
+
+    <!-- API Key -->
+    <div class="api-section" id="apiSection">
+      <div class="api-header">
+        <span class="api-label">🔑 Chave OpenAI</span>
+        <span class="api-status" id="apiStatus">Não configurada</span>
+      </div>
+      <div class="api-input-row">
+        <input type="password" id="apiKey" placeholder="sk-..." />
+        <button class="api-btn" onclick="saveApiKey()">Salvar</button>
+      </div>
+    </div>
+
+    <!-- Style Selection -->
+    <div class="section">
+      <div class="section-title">Estilo da Composição</div>
+      <div class="style-grid">
+        <div class="style-card selected" data-style="arvore" onclick="selectStyle(this)">
+          <div class="style-icon">🌴</div>
+          <div class="style-name">Árvore da Vida</div>
+          <div class="style-desc">Motivo central com ramificações simétricas</div>
+        </div>
+        <div class="style-card" data-style="barroco" onclick="selectStyle(this)">
+          <div class="style-icon">🪞</div>
+          <div class="style-name">Espelho Barroco</div>
+          <div class="style-desc">Simetria total, arabescos ornamentais</div>
+        </div>
+        <div class="style-card" data-style="cascata" onclick="selectStyle(this)">
+          <div class="style-icon">🌺</div>
+          <div class="style-name">Cascata Floral</div>
+          <div class="style-desc">Flores fluindo de cima pra baixo</div>
+        </div>
+        <div class="style-card" data-style="pavao" onclick="selectStyle(this)">
+          <div class="style-icon">🦚</div>
+          <div class="style-name">Pavão / Leque</div>
+          <div class="style-desc">Irradiando do centro pra fora</div>
+        </div>
+        <div class="style-card" data-style="paisley" onclick="selectStyle(this)">
+          <div class="style-icon">🌊</div>
+          <div class="style-name">Paisley Fluido</div>
+          <div class="style-desc">Curvas orgânicas entrelaçadas</div>
+        </div>
+        <div class="style-card" data-style="medalhao" onclick="selectStyle(this)">
+          <div class="style-icon">🏛️</div>
+          <div class="style-name">Medalhão Central</div>
+          <div class="style-desc">Elemento grande no centro + bordas</div>
+        </div>
+        <div class="style-card" data-style="bouquet" onclick="selectStyle(this)">
+          <div class="style-icon">💐</div>
+          <div class="style-name">Buquê Romântico</div>
+          <div class="style-desc">Arranjo naturalista como recém-colhido</div>
+        </div>
+        <div class="style-card" data-style="diagonal" onclick="selectStyle(this)">
+          <div class="style-icon">↗️</div>
+          <div class="style-name">Diagonal Dramática</div>
+          <div class="style-desc">Movimento ascendente dinâmico</div>
+        </div>
+        <div class="style-card" data-style="moldura" onclick="selectStyle(this)">
+          <div class="style-icon">🖼️</div>
+          <div class="style-name">Moldura Viva</div>
+          <div class="style-desc">Elementos nas bordas, centro livre</div>
+        </div>
+        <div class="style-card" data-style="espiral" onclick="selectStyle(this)">
+          <div class="style-icon">🌀</div>
+          <div class="style-name">Espiral Orgânica</div>
+          <div class="style-desc">Movimento circular fibonacci</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Elements -->
+    <div class="section">
+      <div class="section-title">Elementos</div>
+      
+      <div class="input-group">
+        <label class="input-label">Elemento Principal</label>
+        <input type="text" class="text-input" id="mainElement" placeholder="Ex: carnaúba, mandacaru, arara azul..." />
+        <div class="quick-tags">
+          <span class="quick-tag" onclick="addElement('main', 'carnaúba')">carnaúba</span>
+          <span class="quick-tag" onclick="addElement('main', 'mandacaru')">mandacaru</span>
+          <span class="quick-tag" onclick="addElement('main', 'palmeira')">palmeira</span>
+          <span class="quick-tag" onclick="addElement('main', 'arara azul')">arara azul</span>
+          <span class="quick-tag" onclick="addElement('main', 'cajueiro')">cajueiro</span>
+          <span class="quick-tag" onclick="addElement('main', 'tucano')">tucano</span>
+          <span class="quick-tag" onclick="addElement('main', 'onça')">onça</span>
+          <span class="quick-tag" onclick="addElement('main', 'jangada')">jangada</span>
+          <span class="quick-tag" onclick="addElement('main', 'xique-xique')">xique-xique</span>
+          <span class="quick-tag" onclick="addElement('main', 'flamboyant')">flamboyant</span>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label class="input-label">Elementos Secundários</label>
+        <input type="text" class="text-input" id="secondaryElements" placeholder="Ex: flores tropicais, folhagens, frutas..." />
+        <div class="quick-tags">
+          <span class="quick-tag" onclick="addElement('secondary', 'flores tropicais')">flores tropicais</span>
+          <span class="quick-tag" onclick="addElement('secondary', 'folhagens')">folhagens</span>
+          <span class="quick-tag" onclick="addElement('secondary', 'cajus')">cajus</span>
+          <span class="quick-tag" onclick="addElement('secondary', 'cocos')">cocos</span>
+          <span class="quick-tag" onclick="addElement('secondary', 'pássaros')">pássaros</span>
+          <span class="quick-tag" onclick="addElement('secondary', 'borboletas')">borboletas</span>
+          <span class="quick-tag" onclick="addElement('secondary', 'bromélias')">bromélias</span>
+          <span class="quick-tag" onclick="addElement('secondary', 'pitayas')">pitayas</span>
+          <span class="quick-tag" onclick="addElement('secondary', 'maracujás')">maracujás</span>
+          <span class="quick-tag" onclick="addElement('secondary', 'seriemas')">seriemas</span>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label class="input-label">Ornamentos (opcional)</label>
+        <input type="text" class="text-input" id="ornaments" placeholder="Ex: arabescos, volutas, molduras..." />
+        <div class="quick-tags">
+          <span class="quick-tag" onclick="addElement('ornament', 'arabescos')">arabescos</span>
+          <span class="quick-tag" onclick="addElement('ornament', 'volutas')">volutas</span>
+          <span class="quick-tag" onclick="addElement('ornament', 'molduras')">molduras</span>
+          <span class="quick-tag" onclick="addElement('ornament', 'fitas')">fitas</span>
+          <span class="quick-tag" onclick="addElement('ornament', 'rendas')">rendas</span>
+          <span class="quick-tag" onclick="addElement('ornament', 'bordas decoradas')">bordas decoradas</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Palette -->
+    <div class="section">
+      <div class="section-title">Paleta de Cores</div>
+      <div class="palette-grid">
+        <div class="palette-card selected" data-palette="tropical" onclick="selectPalette(this)">
+          <div class="palette-colors">
+            <div class="palette-color" style="background: #D946EF"></div>
+            <div class="palette-color" style="background: #22C55E"></div>
+            <div class="palette-color" style="background: #FEF3C7"></div>
+          </div>
+          <div class="palette-name">Tropical Vivo</div>
+        </div>
+        <div class="palette-card" data-palette="terracota" onclick="selectPalette(this)">
+          <div class="palette-colors">
+            <div class="palette-color" style="background: #C2410C"></div>
+            <div class="palette-color" style="background: #A16207"></div>
+            <div class="palette-color" style="background: #FEF3C7"></div>
+          </div>
+          <div class="palette-name">Terracota</div>
+        </div>
+        <div class="palette-card" data-palette="oceano" onclick="selectPalette(this)">
+          <div class="palette-colors">
+            <div class="palette-color" style="background: #0369A1"></div>
+            <div class="palette-color" style="background: #14B8A6"></div>
+            <div class="palette-color" style="background: #ECFDF5"></div>
+          </div>
+          <div class="palette-name">Oceano</div>
+        </div>
+        <div class="palette-card" data-palette="por-do-sol" onclick="selectPalette(this)">
+          <div class="palette-colors">
+            <div class="palette-color" style="background: #F97316"></div>
+            <div class="palette-color" style="background: #EC4899"></div>
+            <div class="palette-color" style="background: #FEF9C3"></div>
+          </div>
+          <div class="palette-name">Pôr do Sol</div>
+        </div>
+        <div class="palette-card" data-palette="sertao" onclick="selectPalette(this)">
+          <div class="palette-colors">
+            <div class="palette-color" style="background: #78350F"></div>
+            <div class="palette-color" style="background: #65A30D"></div>
+            <div class="palette-color" style="background: #FEF3C7"></div>
+          </div>
+          <div class="palette-name">Sertão</div>
+        </div>
+        <div class="palette-card" data-palette="noite" onclick="selectPalette(this)">
+          <div class="palette-colors">
+            <div class="palette-color" style="background: #1E3A5F"></div>
+            <div class="palette-color" style="background: #7C3AED"></div>
+            <div class="palette-color" style="background: #E0E7FF"></div>
+          </div>
+          <div class="palette-name">Noite Nordeste</div>
+        </div>
+      </div>
+
+      <!-- Custom Colors -->
+      <div class="custom-colors">
+        <label class="custom-toggle">
+          <input type="checkbox" id="useCustomColors" onchange="toggleCustomColors()" />
+          <span>Usar cores personalizadas</span>
+        </label>
+        <div class="color-inputs" id="colorInputs">
+          <div class="color-input-group">
+            <label>Primária</label>
+            <div class="color-picker-row">
+              <input type="color" class="color-picker" id="color1" value="#D946EF" onchange="updateHex(1)" />
+              <input type="text" class="color-hex-input" id="hex1" value="#D946EF" onchange="updatePicker(1)" />
+            </div>
+          </div>
+          <div class="color-input-group">
+            <label>Secundária</label>
+            <div class="color-picker-row">
+              <input type="color" class="color-picker" id="color2" value="#22C55E" onchange="updateHex(2)" />
+              <input type="text" class="color-hex-input" id="hex2" value="#22C55E" onchange="updatePicker(2)" />
+            </div>
+          </div>
+          <div class="color-input-group">
+            <label>Fundo</label>
+            <div class="color-picker-row">
+              <input type="color" class="color-picker" id="color3" value="#FEF3C7" onchange="updateHex(3)" />
+              <input type="text" class="color-hex-input" id="hex3" value="#FEF3C7" onchange="updatePicker(3)" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Density -->
+    <div class="section">
+      <div class="section-title">Densidade</div>
+      <div class="slider-container">
+        <div class="slider-header">
+          <span class="slider-label">Nível de preenchimento</span>
+          <span class="slider-value" id="densityValue">Equilibrado</span>
+        </div>
+        <input type="range" class="density-slider" id="densitySlider" min="1" max="5" value="3" oninput="updateDensity()" />
+        <div class="slider-hints">
+          <span>Respiro</span>
+          <span>Exuberante</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Format -->
+    <div class="section">
+      <div class="section-title">Formato</div>
+      <div class="format-options">
+        <div class="format-option selected" data-format="3:4" onclick="selectFormat(this)">
+          <div class="format-icon">📐</div>
+          <div class="format-name">Vertical</div>
+          <div class="format-ratio">3:4</div>
+        </div>
+        <div class="format-option" data-format="1:1" onclick="selectFormat(this)">
+          <div class="format-icon">⬜</div>
+          <div class="format-name">Quadrado</div>
+          <div class="format-ratio">1:1</div>
+        </div>
+        <div class="format-option" data-format="4:3" onclick="selectFormat(this)">
+          <div class="format-icon">🖼️</div>
+          <div class="format-name">Horizontal</div>
+          <div class="format-ratio">4:3</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Generate Button -->
+    <button class="generate-btn" onclick="generatePrompt()">
+      🎨 Gerar Estampa Placê
+    </button>
+
+    <!-- Result -->
+    <div class="result-section" id="resultSection">
+      <div class="result-card">
+        <div class="result-header">
+          <span class="result-title">✨ Prompt Gerado</span>
+          <div class="result-actions">
+            <button class="result-btn" onclick="copyPrompt()">📋 Copiar</button>
+            <button class="result-btn" onclick="saveToLibrary()">💾 Salvar</button>
+          </div>
+        </div>
+        <div class="prompt-box" id="promptBox" onclick="copyPrompt()"></div>
+      </div>
+    </div>
+
+    <!-- Library -->
+    <section class="library-section">
+      <div class="library-header">
+        <span class="library-title">📚 Biblioteca</span>
+        <button class="clear-library" onclick="clearLibrary()">Limpar</button>
+      </div>
+      <div class="library-grid" id="libraryGrid">
+        <div class="library-empty">Nenhuma composição salva ainda</div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">Copiado!</div>
+
+  <script>
+    // State
+    let selectedStyle = 'arvore';
+    let selectedPalette = 'tropical';
+    let selectedFormat = '3:4';
+    let currentPrompt = '';
+    let library = JSON.parse(localStorage.getItem('lune_place_library') || '[]');
+
+    const styles = {
+      arvore: {
+        name: 'Árvore da Vida',
+        icon: '🌴',
+        prompt: 'composição simétrica estilo árvore da vida, motivo central com ramificações espelhadas, elementos crescendo do centro para as bordas, raízes na base e copa no topo'
+      },
+      barroco: {
+        name: 'Espelho Barroco',
+        icon: '🪞',
+        prompt: 'composição barroca com simetria espelhada perfeita, arabescos ornamentais, volutas decorativas, estilo rococó tropical, moldura imaginária decorativa'
+      },
+      cascata: {
+        name: 'Cascata Floral',
+        icon: '🌺',
+        prompt: 'composição em cascata vertical, elementos fluindo de cima para baixo, movimento descendente orgânico, arranjo floral dramático caindo em diagonal'
+      },
+      pavao: {
+        name: 'Pavão / Leque',
+        icon: '🦚',
+        prompt: 'composição em leque irradiando do centro inferior, padrão de pavão expandindo para cima, simetria radial, elementos abrindo como plumas majestosas'
+      },
+      paisley: {
+        name: 'Paisley Fluido',
+        icon: '🌊',
+        prompt: 'composição paisley com curvas orgânicas entrelaçadas, formas fluidas e sinuosas, movimento ondulante, estilo indo-persa tropical'
+      },
+      medalhao: {
+        name: 'Medalhão Central',
+        icon: '🏛️',
+        prompt: 'composição com medalhão central dominante, bordas decoradas com elementos menores, moldura ornamental, hierarquia visual clara com foco central'
+      },
+      bouquet: {
+        name: 'Buquê Romântico',
+        icon: '💐',
+        prompt: 'composição em buquê naturalista, flores agrupadas no centro com folhagens ao redor, arranjo orgânico como se fosse recém-colhido, estilo romântico'
+      },
+      diagonal: {
+        name: 'Diagonal Dramática',
+        icon: '↗️',
+        prompt: 'composição em diagonal dinâmica atravessando o painel, elementos seguindo linha imaginária do canto inferior ao superior, movimento ascendente dramático'
+      },
+      moldura: {
+        name: 'Moldura Viva',
+        icon: '🖼️',
+        prompt: 'composição com elementos formando moldura decorativa nas bordas, centro com respiro ou elemento focal, estilo cercadura viva'
+      },
+      espiral: {
+        name: 'Espiral Orgânica',
+        icon: '🌀',
+        prompt: 'composição em espiral partindo do centro, elementos girando em movimento circular orgânico, crescimento fibonacci natural'
+      }
+    };
+
+    const palettes = {
+      tropical: { name: 'Tropical Vivo', colors: ['#D946EF', '#22C55E', '#FEF3C7'], desc: 'magenta vibrante, verde tropical, creme' },
+      terracota: { name: 'Terracota', colors: ['#C2410C', '#A16207', '#FEF3C7'], desc: 'terracota, ocre dourado, creme' },
+      oceano: { name: 'Oceano', colors: ['#0369A1', '#14B8A6', '#ECFDF5'], desc: 'azul oceano, turquesa, menta clara' },
+      'por-do-sol': { name: 'Pôr do Sol', colors: ['#F97316', '#EC4899', '#FEF9C3'], desc: 'laranja, rosa pink, amarelo claro' },
+      sertao: { name: 'Sertão', colors: ['#78350F', '#65A30D', '#FEF3C7'], desc: 'marrom terra, verde cacto, areia' },
+      noite: { name: 'Noite Nordeste', colors: ['#1E3A5F', '#7C3AED', '#E0E7FF'], desc: 'azul noturno, roxo, lavanda' },
+      caju: { name: 'Cajueiro', colors: ['#EA580C', '#FCD34D', '#FEF3C7'], desc: 'laranja cajá, amarelo, creme quente' },
+      jangada: { name: 'Jangada', colors: ['#0891B2', '#F97316', '#FEF9C3'], desc: 'azul mar, laranja vela, areia clara' },
+      carnauba: { name: 'Carnaúba', colors: ['#15803D', '#A3E635', '#FEF3C7'], desc: 'verde palma, verde limão, creme' },
+      pitaya: { name: 'Pitaya', colors: ['#DB2777', '#A855F7', '#FDF4FF'], desc: 'pink pitaya, roxo, rosa claro' },
+      ceramica: { name: 'Cerâmica Nordeste', colors: ['#B45309', '#D97706', '#FFFBEB'], desc: 'terracota escuro, mostarda, off-white' },
+      acai: { name: 'Açaí', colors: ['#581C87', '#7C3AED', '#F3E8FF'], desc: 'roxo açaí profundo, violeta, lavanda' }
+    };
+
+    const densityLabels = {
+      1: 'Muito arejado',
+      2: 'Arejado',
+      3: 'Equilibrado',
+      4: 'Denso',
+      5: 'Exuberante'
+    };
+
+    const densityPrompts = {
+      1: 'composição minimalista com muito espaço negativo, poucos elementos, respiro visual amplo',
+      2: 'composição arejada com espaços vazios balanceados, elementos bem distribuídos',
+      3: 'composição equilibrada entre elementos e fundo, densidade moderada',
+      4: 'composição densa e rica em detalhes, muitos elementos, pouco espaço vazio',
+      5: 'composição exuberante e maximialista, abundância de elementos, preenchimento total'
+    };
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      loadApiKey();
+      renderLibrary();
+    });
+
+    // API Key
+    function loadApiKey() {
+      const key = localStorage.getItem('lune_openai_key');
+      if (key) {
+        document.getElementById('apiKey').value = key;
+        document.getElementById('apiSection').classList.add('configured');
+        document.getElementById('apiStatus').textContent = 'Configurada ✓';
+      }
+    }
+
+    function saveApiKey() {
+      const key = document.getElementById('apiKey').value.trim();
+      if (key) {
+        localStorage.setItem('lune_openai_key', key);
+        document.getElementById('apiSection').classList.add('configured');
+        document.getElementById('apiStatus').textContent = 'Configurada ✓';
+        showToast('Chave salva!');
+      }
+    }
+
+    // Style selection
+    function selectStyle(el) {
+      document.querySelectorAll('.style-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedStyle = el.dataset.style;
+    }
+
+    // Palette selection
+    function selectPalette(el) {
+      document.querySelectorAll('.palette-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedPalette = el.dataset.palette;
+      
+      // Update custom colors to match palette
+      const palette = palettes[selectedPalette];
+      document.getElementById('color1').value = palette.colors[0];
+      document.getElementById('hex1').value = palette.colors[0];
+      document.getElementById('color2').value = palette.colors[1];
+      document.getElementById('hex2').value = palette.colors[1];
+      document.getElementById('color3').value = palette.colors[2];
+      document.getElementById('hex3').value = palette.colors[2];
+    }
+
+    // Format selection
+    function selectFormat(el) {
+      document.querySelectorAll('.format-option').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedFormat = el.dataset.format;
+    }
+
+    // Element helpers
+    function addElement(type, text) {
+      const inputMap = {
+        main: 'mainElement',
+        secondary: 'secondaryElements',
+        ornament: 'ornaments'
+      };
+      const input = document.getElementById(inputMap[type]);
+      if (input.value) {
+        input.value += ', ' + text;
+      } else {
+        input.value = text;
+      }
+    }
+
+    // Custom colors
+    function toggleCustomColors() {
+      const checked = document.getElementById('useCustomColors').checked;
+      document.getElementById('colorInputs').classList.toggle('visible', checked);
+    }
+
+    function updateHex(num) {
+      const color = document.getElementById('color' + num).value;
+      document.getElementById('hex' + num).value = color.toUpperCase();
+    }
+
+    function updatePicker(num) {
+      let hex = document.getElementById('hex' + num).value;
+      if (!hex.startsWith('#')) hex = '#' + hex;
+      document.getElementById('color' + num).value = hex;
+    }
+
+    // Density
+    function updateDensity() {
+      const value = document.getElementById('densitySlider').value;
+      document.getElementById('densityValue').textContent = densityLabels[value];
+    }
+
+    // Generate prompt
+    function generatePrompt() {
+      const mainElement = document.getElementById('mainElement').value.trim();
+      const secondaryElements = document.getElementById('secondaryElements').value.trim();
+      const ornaments = document.getElementById('ornaments').value.trim();
+      const density = document.getElementById('densitySlider').value;
+      const useCustom = document.getElementById('useCustomColors').checked;
+
+      if (!mainElement) {
+        showToast('Adicione um elemento principal');
+        return;
+      }
+
+      const style = styles[selectedStyle];
+      const densityPrompt = densityPrompts[density];
+      
+      let colorPrompt;
+      if (useCustom) {
+        const c1 = document.getElementById('hex1').value;
+        const c2 = document.getElementById('hex2').value;
+        const c3 = document.getElementById('hex3').value;
+        colorPrompt = `paleta de cores personalizada com ${c1} como cor principal, ${c2} como cor secundária, e ${c3} como cor de fundo`;
+      } else {
+        colorPrompt = `paleta ${palettes[selectedPalette].name}: ${palettes[selectedPalette].desc}`;
+      }
+
+      let elementsPrompt = `elemento principal: ${mainElement}`;
+      if (secondaryElements) {
+        elementsPrompt += `, elementos secundários: ${secondaryElements}`;
+      }
+      if (ornaments) {
+        elementsPrompt += `, ornamentos: ${ornaments}`;
+      }
+
+      currentPrompt = `Estampa PLACEMENT para moda feminina LUNE, painel artístico único posicionado,
+
+COMPOSIÇÃO: ${style.prompt}
+
+ELEMENTOS: ${elementsPrompt}
+
+DENSIDADE: ${densityPrompt}
+
+PALETA: ${colorPrompt}
+
+TÉCNICA ARTÍSTICA OBRIGATÓRIA:
+- Aquarela transparente com lavadas diluídas em múltiplas camadas
+- Efeito wet-on-wet com cores sangrando suavemente nas bordas
+- Gradientes luminosos e transições etéreas
+- Contornos delicados em nanquim fino Winsor & Newton
+- Textura autêntica de papel aquarela cold press visível
+- Pinceladas orgânicas com charme artesanal
+- Acabamento sofisticado de ilustração botânica
+
+IDENTIDADE LUNE:
+- Arte têxtil brasileira nordestina contemporânea
+- Tropical poético, feminino, autoral
+- 70% espaço de respiro, 30% elementos
+- Cores que induzem bem-estar e endorfina
+- Sofisticação sem perder calor humano
+
+ESPECIFICAÇÕES TÉCNICAS:
+- Fundo off-white com textura sutil de papel
+- Alta definição para impressão têxtil
+- Elementos bem definidos para silk ou sublimação
+
+--ar ${selectedFormat} --stylize 50 --v 7`;
+
+      document.getElementById('promptBox').textContent = currentPrompt;
+      document.getElementById('resultSection').classList.add('visible');
+      document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Copy prompt
+    function copyPrompt() {
+      navigator.clipboard.writeText(currentPrompt);
+      showToast('Prompt copiado!');
+    }
+
+    // Library
+    function saveToLibrary() {
+      if (!currentPrompt) return;
+
+      const useCustom = document.getElementById('useCustomColors').checked;
+      let colors;
+      if (useCustom) {
+        colors = [
+          document.getElementById('hex1').value,
+          document.getElementById('hex2').value,
+          document.getElementById('hex3').value
+        ];
+      } else {
+        colors = palettes[selectedPalette].colors;
+      }
+
+      const entry = {
+        id: Date.now(),
+        date: new Date().toLocaleString('pt-BR'),
+        style: selectedStyle,
+        styleName: styles[selectedStyle].name,
+        styleIcon: styles[selectedStyle].icon,
+        mainElement: document.getElementById('mainElement').value,
+        secondaryElements: document.getElementById('secondaryElements').value,
+        ornaments: document.getElementById('ornaments').value,
+        palette: selectedPalette,
+        colors: colors,
+        format: selectedFormat,
+        density: document.getElementById('densitySlider').value,
+        prompt: currentPrompt
+      };
+
+      library.unshift(entry);
+      if (library.length > 30) library.pop();
+
+      localStorage.setItem('lune_place_library', JSON.stringify(library));
+      renderLibrary();
+      showToast('Salvo na biblioteca!');
+    }
+
+    function renderLibrary() {
+      const container = document.getElementById('libraryGrid');
+
+      if (library.length === 0) {
+        container.innerHTML = '<div class="library-empty">Nenhuma composição salva ainda</div>';
+        return;
+      }
+
+      container.innerHTML = library.map((item, index) => `
+        <div class="library-item">
+          <div class="library-item-header">
+            <div class="library-item-style">
+              <span class="library-item-icon">${item.styleIcon}</span>
+              <span class="library-item-name">${item.styleName}</span>
+            </div>
+            <span class="library-item-date">${item.date}</span>
+          </div>
+          <div class="library-item-elements">${item.mainElement}${item.secondaryElements ? ', ' + item.secondaryElements : ''}</div>
+          <div class="library-item-palette">
+            ${item.colors.map(c => `<div class="library-palette-dot" style="background: ${c}"></div>`).join('')}
+          </div>
+          <div class="library-item-actions" onclick="event.stopPropagation()">
+            <button class="library-action" onclick="copyLibraryPrompt(${index})">📋 Copiar</button>
+            <button class="library-action" onclick="loadFromLibrary(${index})">🔄 Carregar</button>
+            <button class="library-action delete" onclick="deleteFromLibrary(${index})">🗑️</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function copyLibraryPrompt(index) {
+      navigator.clipboard.writeText(library[index].prompt);
+      showToast('Prompt copiado!');
+    }
+
+    function loadFromLibrary(index) {
+      const item = library[index];
+      
+      // Set style
+      document.querySelectorAll('.style-card').forEach(c => {
+        c.classList.toggle('selected', c.dataset.style === item.style);
+      });
+      selectedStyle = item.style;
+
+      // Set elements
+      document.getElementById('mainElement').value = item.mainElement || '';
+      document.getElementById('secondaryElements').value = item.secondaryElements || '';
+      document.getElementById('ornaments').value = item.ornaments || '';
+
+      // Set palette
+      document.querySelectorAll('.palette-card').forEach(c => {
+        c.classList.toggle('selected', c.dataset.palette === item.palette);
+      });
+      selectedPalette = item.palette;
+
+      // Set colors
+      if (item.colors) {
+        document.getElementById('color1').value = item.colors[0];
+        document.getElementById('hex1').value = item.colors[0];
+        document.getElementById('color2').value = item.colors[1];
+        document.getElementById('hex2').value = item.colors[1];
+        document.getElementById('color3').value = item.colors[2];
+        document.getElementById('hex3').value = item.colors[2];
+      }
+
+      // Set format
+      document.querySelectorAll('.format-option').forEach(c => {
+        c.classList.toggle('selected', c.dataset.format === item.format);
+      });
+      selectedFormat = item.format;
+
+      // Set density
+      document.getElementById('densitySlider').value = item.density;
+      updateDensity();
+
+      // Show prompt
+      currentPrompt = item.prompt;
+      document.getElementById('promptBox').textContent = currentPrompt;
+      document.getElementById('resultSection').classList.add('visible');
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      showToast('Composição carregada!');
+    }
+
+    function deleteFromLibrary(index) {
+      if (!confirm('Excluir esta composição?')) return;
+      library.splice(index, 1);
+      localStorage.setItem('lune_place_library', JSON.stringify(library));
+      renderLibrary();
+      showToast('Excluído');
+    }
+
+    function clearLibrary() {
+      if (!confirm('Limpar toda a biblioteca?')) return;
+      library = [];
+      localStorage.removeItem('lune_place_library');
+      renderLibrary();
+      showToast('Biblioteca limpa');
+    }
+
+    // Toast
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+  </script>
+</body>
+</html>
