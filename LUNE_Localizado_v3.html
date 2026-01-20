@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LUNE Localizado v3</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+      color: #e8e8e8;
+      min-height: 100vh;
+      padding: 20px;
+      padding-bottom: 100px;
+    }
+
+    .container {
+      max-width: 650px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      padding: 30px 0 40px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 8px;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .logo span {
+      background: linear-gradient(135deg, #f4a261, #e76f51);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      font-size: 12px;
+      color: #888;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .version-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #f4a261, #e76f51);
+      color: #000;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-top: 12px;
+      letter-spacing: 1px;
+    }
+
+    /* Sections */
+    .section {
+      margin-bottom: 28px;
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #f4a261;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(244,162,97,0.3), transparent);
+    }
+
+    /* Cards Grid */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .cards-grid.three-cols {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .card {
+      background: rgba(255,255,255,0.03);
+      border: 2px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .card:hover {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.15);
+      transform: translateY(-2px);
+    }
+
+    .card.selected {
+      border-color: #f4a261;
+      background: rgba(244,162,97,0.1);
+      box-shadow: 0 0 20px rgba(244,162,97,0.15);
+    }
+
+    .card-icon {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .card-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 3px;
+    }
+
+    .card-desc {
+      font-size: 10px;
+      color: #777;
+      line-height: 1.3;
+    }
+
+    /* Position Cards - Visual */
+    .position-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .position-card {
+      background: rgba(255,255,255,0.03);
+      border: 2px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 10px 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    .position-card:hover {
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    .position-card.selected {
+      border-color: #f4a261;
+      background: rgba(244,162,97,0.1);
+    }
+
+    .position-icon {
+      font-size: 22px;
+      margin-bottom: 4px;
+    }
+
+    .position-name {
+      font-size: 9px;
+      font-weight: 500;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Input Fields */
+    .input-group {
+      margin-bottom: 14px;
+    }
+
+    .input-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: #999;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .input-label .optional {
+      font-size: 9px;
+      color: #666;
+      font-weight: 400;
+    }
+
+    input[type="text"],
+    textarea,
+    select {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: #fff;
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: #f4a261;
+      background: rgba(255,255,255,0.08);
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: #555;
+    }
+
+    textarea {
+      resize: none;
+      min-height: 70px;
+    }
+
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23888' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+    }
+
+    /* Row layout */
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .row.three {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    /* Tags */
+    .tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .tag {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      padding: 6px 12px;
+      font-size: 11px;
+      color: #bbb;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tag:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    .tag.selected {
+      background: rgba(244,162,97,0.15);
+      border-color: #f4a261;
+      color: #f4a261;
+    }
+
+    /* Palettes */
+    .palette-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .palette-option {
+      background: rgba(255,255,255,0.03);
+      border: 2px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 10px 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .palette-option:hover {
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    .palette-option.selected {
+      border-color: #f4a261;
+    }
+
+    .palette-colors {
+      display: flex;
+      gap: 2px;
+      margin-bottom: 6px;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .palette-color {
+      flex: 1;
+      height: 20px;
+    }
+
+    .palette-name {
+      font-size: 9px;
+      color: #888;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Custom Colors */
+    .custom-palette {
+      background: rgba(255,255,255,0.03);
+      border: 2px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 12px;
+    }
+
+    .custom-palette.active {
+      border-color: #f4a261;
+    }
+
+    .custom-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .custom-header input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #f4a261;
+    }
+
+    .custom-header label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #ccc;
+      cursor: pointer;
+    }
+
+    .custom-colors-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+
+    .color-input-group {
+      text-align: center;
+    }
+
+    .color-picker-wrapper {
+      position: relative;
+      width: 100%;
+      height: 36px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 2px solid rgba(255,255,255,0.1);
+      margin-bottom: 4px;
+    }
+
+    .color-picker-wrapper input[type="color"] {
+      position: absolute;
+      width: 150%;
+      height: 150%;
+      top: -25%;
+      left: -25%;
+      border: none;
+      cursor: pointer;
+    }
+
+    .color-hex {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      padding: 4px;
+      color: #aaa;
+      font-size: 9px;
+      text-align: center;
+      font-family: monospace;
+    }
+
+    .color-hex:focus {
+      border-color: #f4a261;
+      color: #fff;
+    }
+
+    /* Toggle Switch */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    .toggle-label {
+      font-size: 12px;
+      color: #ccc;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255,255,255,0.1);
+      transition: 0.3s;
+      border-radius: 24px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background: #666;
+      transition: 0.3s;
+      border-radius: 50%;
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+      background: rgba(244,162,97,0.3);
+    }
+
+    .toggle-switch input:checked + .toggle-slider:before {
+      transform: translateX(20px);
+      background: #f4a261;
+    }
+
+    /* Generate Button */
+    .generate-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #f4a261, #e76f51);
+      border: none;
+      border-radius: 14px;
+      padding: 16px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #000;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-top: 10px;
+    }
+
+    .generate-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(244,162,97,0.35);
+    }
+
+    .generate-btn:active {
+      transform: translateY(0);
+    }
+
+    /* Result */
+    .result-box {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px;
+      padding: 20px;
+      margin-top: 24px;
+    }
+
+    .result-box.hidden {
+      display: none;
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .result-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #f4a261;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .copy-btn {
+      background: rgba(244,162,97,0.15);
+      border: 1px solid #f4a261;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #f4a261;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .copy-btn:hover {
+      background: #f4a261;
+      color: #000;
+    }
+
+    .prompt-text {
+      font-size: 13px;
+      line-height: 1.7;
+      color: #ccc;
+      background: rgba(0,0,0,0.3);
+      border-radius: 10px;
+      padding: 16px;
+      word-break: break-word;
+    }
+
+    /* History Section */
+    .history-section {
+      margin-top: 40px;
+      padding-top: 30px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .history-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #888;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .clear-btn {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 10px;
+      color: #888;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .clear-btn:hover {
+      border-color: #e76f51;
+      color: #e76f51;
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .history-item {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .history-item:hover {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.15);
+    }
+
+    .history-item-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .history-item-style {
+      font-size: 11px;
+      font-weight: 600;
+      color: #f4a261;
+    }
+
+    .history-item-date {
+      font-size: 10px;
+      color: #666;
+    }
+
+    .history-item-preview {
+      font-size: 11px;
+      color: #888;
+      line-height: 1.4;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .history-empty {
+      text-align: center;
+      color: #555;
+      font-size: 12px;
+      padding: 20px;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #f4a261;
+      color: #000;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Collapsible */
+    .collapsible-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      padding: 10px 0;
+    }
+
+    .collapsible-header:hover .section-title {
+      color: #f4a261;
+    }
+
+    .collapse-icon {
+      font-size: 12px;
+      color: #666;
+      transition: transform 0.3s;
+    }
+
+    .collapsible-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .collapsible-content.open {
+      max-height: 500px;
+    }
+
+    /* Quick tips */
+    .tip {
+      background: rgba(244,162,97,0.08);
+      border-left: 3px solid #f4a261;
+      border-radius: 0 8px 8px 0;
+      padding: 10px 14px;
+      margin-bottom: 16px;
+      font-size: 11px;
+      color: #bbb;
+      line-height: 1.5;
+    }
+
+    .tip strong {
+      color: #f4a261;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">LUNE <span>LOCALIZADO</span></div>
+      <div class="subtitle">Gerador de Prompts para Estampas</div>
+      <div class="version-badge">V3.0 FLEX</div>
+    </div>
+
+    <!-- Posição da Estampa -->
+    <div class="section">
+      <div class="section-title">📍 Posição da Estampa</div>
+      <div class="position-grid">
+        <div class="position-card selected" data-position="frontal" onclick="selectPosition(this)">
+          <div class="position-icon">👕</div>
+          <div class="position-name">Frontal</div>
+        </div>
+        <div class="position-card" data-position="costas" onclick="selectPosition(this)">
+          <div class="position-icon">🔙</div>
+          <div class="position-name">Costas</div>
+        </div>
+        <div class="position-card" data-position="bolso" onclick="selectPosition(this)">
+          <div class="position-icon">📍</div>
+          <div class="position-name">Bolso</div>
+        </div>
+        <div class="position-card" data-position="manga-esq" onclick="selectPosition(this)">
+          <div class="position-icon">💪</div>
+          <div class="position-name">Manga E</div>
+        </div>
+        <div class="position-card" data-position="manga-dir" onclick="selectPosition(this)">
+          <div class="position-icon">🦾</div>
+          <div class="position-name">Manga D</div>
+        </div>
+        <div class="position-card" data-position="barra" onclick="selectPosition(this)">
+          <div class="position-icon">📏</div>
+          <div class="position-name">Barra</div>
+        </div>
+        <div class="position-card" data-position="ombro" onclick="selectPosition(this)">
+          <div class="position-icon">🎯</div>
+          <div class="position-name">Ombro</div>
+        </div>
+        <div class="position-card" data-position="allover" onclick="selectPosition(this)">
+          <div class="position-icon">✨</div>
+          <div class="position-name">All Over</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estilo Visual -->
+    <div class="section">
+      <div class="section-title">🎨 Estilo Visual</div>
+      <div class="cards-grid">
+        <div class="card selected" data-style="livre" onclick="selectStyle(this)">
+          <div class="card-icon">🆓</div>
+          <div class="card-name">Estilo Livre</div>
+          <div class="card-desc">Você descreve o estilo</div>
+        </div>
+        <div class="card" data-style="aquarela-lune" onclick="selectStyle(this)">
+          <div class="card-icon">💧</div>
+          <div class="card-name">Aquarela LUNE</div>
+          <div class="card-desc">Watercolor signature</div>
+        </div>
+        <div class="card" data-style="italian-summer" onclick="selectStyle(this)">
+          <div class="card-icon">🍋</div>
+          <div class="card-name">Italian Summer</div>
+          <div class="card-desc">Poster vintage resort</div>
+        </div>
+        <div class="card" data-style="calcadao" onclick="selectStyle(this)">
+          <div class="card-icon">🏖️</div>
+          <div class="card-name">Calçadão</div>
+          <div class="card-desc">Beach brasileiro bold</div>
+        </div>
+        <div class="card" data-style="naif-pop" onclick="selectStyle(this)">
+          <div class="card-icon">🦜</div>
+          <div class="card-name">Naïf Pop</div>
+          <div class="card-desc">Arte ingênua colorida</div>
+        </div>
+        <div class="card" data-style="vintage-label" onclick="selectStyle(this)">
+          <div class="card-icon">🏷️</div>
+          <div class="card-name">Vintage Label</div>
+          <div class="card-desc">Rótulo retrô frutas</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estilo Livre Input -->
+    <div class="section" id="estiloLivreSection">
+      <div class="input-group">
+        <label class="input-label">Descreva o estilo desejado</label>
+        <textarea id="estiloLivre" placeholder="Ex: aquarela suave com traços soltos, estilo botanical illustration, cores vibrantes mas elegantes..."></textarea>
+      </div>
+    </div>
+
+    <!-- Elemento Principal -->
+    <div class="section">
+      <div class="section-title">🌿 Elemento Principal</div>
+      <div class="input-group">
+        <input type="text" id="elemento" placeholder="Ex: cajueiro, tucano, caju, flor de maracujá...">
+      </div>
+      <div class="tags-container" id="elementTags"></div>
+    </div>
+
+    <!-- Tipografia -->
+    <div class="section">
+      <div class="section-title">✏️ Tipografia</div>
+      
+      <div class="toggle-row">
+        <span class="toggle-label">Incluir texto na estampa</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="incluirTexto" checked onchange="toggleTexto()">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div id="textoSection">
+        <div class="input-group">
+          <label class="input-label">Texto Principal</label>
+          <input type="text" id="frasePrincipal" placeholder="Ex: CEARÁ, LUNE, JERICOACOARA...">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Texto Secundário <span class="optional">(opcional)</span></label>
+          <input type="text" id="fraseSecundaria" placeholder="Ex: Est. 2013, Brasil, Handmade...">
+        </div>
+      </div>
+    </div>
+
+    <!-- Tamanho -->
+    <div class="section">
+      <div class="section-title">📐 Tamanho da Estampa</div>
+      <div class="cards-grid three-cols">
+        <div class="card" data-size="pequena" onclick="selectSize(this)">
+          <div class="card-icon">🔹</div>
+          <div class="card-name">Pequena</div>
+          <div class="card-desc">~8cm, discreta</div>
+        </div>
+        <div class="card selected" data-size="media" onclick="selectSize(this)">
+          <div class="card-icon">🔷</div>
+          <div class="card-name">Média</div>
+          <div class="card-desc">~15cm, versátil</div>
+        </div>
+        <div class="card" data-size="grande" onclick="selectSize(this)">
+          <div class="card-icon">⬛</div>
+          <div class="card-name">Grande</div>
+          <div class="card-desc">~25cm+, impacto</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paleta de Cores -->
+    <div class="section">
+      <div class="section-title">🎨 Paleta de Cores</div>
+      <div class="palette-grid">
+        <div class="palette-option selected" data-colors="terracotta and golden yellow, warm earth tones with cream" data-name="Terracota" onclick="selectPalette(this)">
+          <div class="palette-colors">
+            <div class="palette-color" style="background: #C75B39"></div>
+            <div class="palette-color" style="background: #E8A54B"></div>
+            <div class="palette-color" style="background: #F5E6D3"></div>
+          </div>
+          <div class="palette-name">Terracota</div>
+        </div>
+        <div class="palette-option" data-colors="ocean blue and seafoam green, coastal tropical palette" data-name="Oceano" onclick="selectPalette(this)">
+          <div class="palette-colors">
+            <div class="palette-color" style="background: #1E6091"></div>
+            <div class="palette-color" style="background: #48A9A6"></div>
+            <div class="palette-color" style="background: #D4F1F4"></div>
+          </div>
+          <div class="palette-name">Oceano</div>
+        </div>
+        <div class="palette-option" data-colors="coral pink and soft peach, feminine warm palette" data-name="Coral" onclick="selectPalette(this)">
+          <div class="palette-colors">
+            <div class="palette-color" style="background: #E07A5F"></div>
+            <div class="palette-color" style="background: #F2CC8F"></div>
+            <div class="palette-color" style="background: #F4F1DE"></div>
+          </div>
+          <div class="palette-name">Coral</div>
+        </div>
+        <div class="palette-option" data-colors="sage green and olive, botanical earth tones" data-name="Botanical" onclick="selectPalette(this)">
+          <div class="palette-colors">
+            <div class="palette-color" style="background: #606C38"></div>
+            <div class="palette-color" style="background: #9AB87A"></div>
+            <div class="palette-color" style="background: #FEFAE0"></div>
+          </div>
+          <div class="palette-name">Botanical</div>
+        </div>
+        <div class="palette-option" data-colors="vibrant tropical colors, bold saturated palette with yellow orange pink green" data-name="Tropical" onclick="selectPalette(this)">
+          <div class="palette-colors">
+            <div class="palette-color" style="background: #FF6B6B"></div>
+            <div class="palette-color" style="background: #4ECDC4"></div>
+            <div class="palette-color" style="background: #FFE66D"></div>
+          </div>
+          <div class="palette-name">Tropical</div>
+        </div>
+        <div class="palette-option" data-colors="dusty rose and mauve, soft romantic muted palette" data-name="Rose" onclick="selectPalette(this)">
+          <div class="palette-colors">
+            <div class="palette-color" style="background: #B5838D"></div>
+            <div class="palette-color" style="background: #E5989B"></div>
+            <div class="palette-color" style="background: #FFD6E0"></div>
+          </div>
+          <div class="palette-name">Rose</div>
+        </div>
+        <div class="palette-option" data-colors="deep burgundy and gold, rich luxurious autumn palette" data-name="Luxe" onclick="selectPalette(this)">
+          <div class="palette-colors">
+            <div class="palette-color" style="background: #722F37"></div>
+            <div class="palette-color" style="background: #C9A227"></div>
+            <div class="palette-color" style="background: #F8F0E3"></div>
+          </div>
+          <div class="palette-name">Luxe</div>
+        </div>
+        <div class="palette-option" data-colors="soft neutrals, minimal cream beige taupe palette" data-name="Neutro" onclick="selectPalette(this)">
+          <div class="palette-colors">
+            <div class="palette-color" style="background: #A39382"></div>
+            <div class="palette-color" style="background: #D5C7BC"></div>
+            <div class="palette-color" style="background: #F5F1EB"></div>
+          </div>
+          <div class="palette-name">Neutro</div>
+        </div>
+      </div>
+
+      <!-- Custom Palette -->
+      <div class="custom-palette" id="customPalette">
+        <div class="custom-header">
+          <input type="checkbox" id="useCustomColors" onchange="toggleCustomPalette()">
+          <label for="useCustomColors">Usar paleta personalizada</label>
+        </div>
+        <div class="custom-colors-row" id="customColorsRow" style="display: none;">
+          <div class="color-input-group">
+            <div class="color-picker-wrapper">
+              <input type="color" id="customColor1" value="#E07A5F" onchange="updateHexInput(1)">
+            </div>
+            <input type="text" class="color-hex" id="customHex1" value="#E07A5F" onchange="updateColorPreview(1)" maxlength="7">
+          </div>
+          <div class="color-input-group">
+            <div class="color-picker-wrapper">
+              <input type="color" id="customColor2" value="#F2CC8F" onchange="updateHexInput(2)">
+            </div>
+            <input type="text" class="color-hex" id="customHex2" value="#F2CC8F" onchange="updateColorPreview(2)" maxlength="7">
+          </div>
+          <div class="color-input-group">
+            <div class="color-picker-wrapper">
+              <input type="color" id="customColor3" value="#81B29A" onchange="updateHexInput(3)">
+            </div>
+            <input type="text" class="color-hex" id="customHex3" value="#81B29A" onchange="updateColorPreview(3)" maxlength="7">
+          </div>
+          <div class="color-input-group">
+            <div class="color-picker-wrapper">
+              <input type="color" id="customColor4" value="#3D405B" onchange="updateHexInput(4)">
+            </div>
+            <input type="text" class="color-hex" id="customHex4" value="#3D405B" onchange="updateColorPreview(4)" maxlength="7">
+          </div>
+          <div class="color-input-group">
+            <div class="color-picker-wrapper">
+              <input type="color" id="customColor5" value="#F4F1DE" onchange="updateHexInput(5)">
+            </div>
+            <input type="text" class="color-hex" id="customHex5" value="#F4F1DE" onchange="updateColorPreview(5)" maxlength="7">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Opções Avançadas -->
+    <div class="section">
+      <div class="collapsible-header" onclick="toggleAdvanced()">
+        <div class="section-title" style="margin-bottom: 0;">⚙️ Opções Avançadas</div>
+        <span class="collapse-icon" id="advancedIcon">▼</span>
+      </div>
+      <div class="collapsible-content" id="advancedContent">
+        <div style="padding-top: 14px;">
+          <div class="row">
+            <div class="input-group">
+              <label class="input-label">Cor da Camiseta</label>
+              <select id="fundoCamiseta">
+                <option value="white">Branca</option>
+                <option value="off-white">Off-white / Cru</option>
+                <option value="black">Preta</option>
+                <option value="colored">Colorida (usar cor primária)</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label class="input-label">Proporção</label>
+              <select id="proporcao">
+                <option value="1:1">1:1 Quadrado</option>
+                <option value="4:5">4:5 Vertical</option>
+                <option value="3:4">3:4 Vertical+</option>
+                <option value="16:9">16:9 Panorâmico</option>
+              </select>
+            </div>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Elementos Decorativos <span class="optional">(opcional)</span></label>
+            <input type="text" id="decorativo" placeholder="Ex: moldura floral, selos vintage, estrelas...">
+          </div>
+          <div class="input-group">
+            <label class="input-label">Referência Visual <span class="optional">(opcional)</span></label>
+            <textarea id="referencia" placeholder="Ex: estilo da coleção Morena Tropicana, inspirado em rótulos de frutas anos 50..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Generate Button -->
+    <button class="generate-btn" onclick="generatePrompt()">✨ Gerar Prompt</button>
+
+    <!-- Result -->
+    <div class="result-box hidden" id="resultado">
+      <div class="result-header">
+        <span class="result-title">Prompt Gerado</span>
+        <button class="copy-btn" onclick="copyPrompt()">📋 Copiar</button>
+      </div>
+      <div class="prompt-text" id="promptText"></div>
+    </div>
+
+    <!-- History -->
+    <div class="history-section">
+      <div class="history-header">
+        <span class="history-title">📜 Histórico</span>
+        <button class="clear-btn" onclick="clearHistory()">Limpar</button>
+      </div>
+      <div class="history-list" id="historyList"></div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">Copiado!</div>
+
+  <script>
+    // Configurações de estilo
+    const styleConfigs = {
+      'livre': {
+        name: 'Estilo Livre',
+        basePrompt: 'illustrated graphic design for t-shirt print',
+        typoPrompt: 'clean readable typography'
+      },
+      'aquarela-lune': {
+        name: 'Aquarela LUNE',
+        basePrompt: 'delicate watercolor illustration, soft brushstrokes, organic flowing shapes, sophisticated botanical style',
+        typoPrompt: 'elegant thin serif typography, minimal clean letters'
+      },
+      'italian-summer': {
+        name: 'Italian Summer',
+        basePrompt: 'vintage illustrated t-shirt graphic design, Italian summer poster style, hand-painted illustration with decorative typography, sophisticated resort fashion aesthetic',
+        typoPrompt: 'decorative serif typography mixed with elegant script, vintage Italian poster lettering'
+      },
+      'calcadao': {
+        name: 'Calçadão Brasileiro',
+        basePrompt: 'Brazilian beach graphic tee design, bold brush lettering, Copacabana wave patterns, hand-painted urban tropical style',
+        typoPrompt: 'bold brush stroke lettering, hand-painted typography, dynamic wavy text'
+      },
+      'naif-pop': {
+        name: 'Naïf Pop',
+        basePrompt: 'naive pop art t-shirt illustration, colorful Brazilian style, playful tropical graphic with bold typography, flat vector aesthetic with charm',
+        typoPrompt: 'bold sans-serif typography, playful chunky letters, pop art text style'
+      },
+      'vintage-label': {
+        name: 'Vintage Label',
+        basePrompt: 'vintage fruit label t-shirt design, retro product packaging illustration, farm to table aesthetic, nostalgic Brazilian harvest style with mixed typography',
+        typoPrompt: 'vintage product label typography, mixed fonts with display headers condensed body and script accents'
+      }
+    };
+
+    // Posições
+    const positionConfigs = {
+      'frontal': { prompt: 'front chest placement, centered graphic', size: 'medium sized print' },
+      'costas': { prompt: 'back print placement, large centered graphic on upper back', size: 'large print' },
+      'bolso': { prompt: 'small left chest pocket area placement, compact design', size: 'small pocket-sized print about 8cm' },
+      'manga-esq': { prompt: 'left sleeve print placement, vertical oriented', size: 'small sleeve print' },
+      'manga-dir': { prompt: 'right sleeve print placement, vertical oriented', size: 'small sleeve print' },
+      'barra': { prompt: 'bottom hem placement, horizontal strip design along bottom edge', size: 'horizontal strip print' },
+      'ombro': { prompt: 'shoulder placement, across upper shoulder area', size: 'medium shoulder print' },
+      'allover': { prompt: 'all-over seamless pattern print, repeating design covering entire garment', size: 'full coverage pattern' }
+    };
+
+    // Tamanhos
+    const sizeConfigs = {
+      'pequena': 'small compact print approximately 8cm, subtle discrete design',
+      'media': 'medium sized print approximately 15-18cm, balanced visible design',
+      'grande': 'large prominent print approximately 25-30cm, bold statement design'
+    };
+
+    // Elementos nordestinos
+    const elementosNordeste = [
+      'caju', 'cajueiro', 'cajuína', 'coco', 'coqueiro', 'carnaúba', 
+      'mandacaru', 'xique-xique', 'palma', 'jericoacoara', 'jangada',
+      'lagosta', 'camarão', 'peixe', 'tucano', 'arara', 'papagaio',
+      'maracujá', 'graviola', 'pitanga', 'acerola', 'goiaba', 'manga',
+      'abacaxi', 'banana', 'melancia', 'girassol', 'hibisco', 'ipê',
+      'rendeira', 'renda', 'labirinto', 'estrela do mar', 'concha'
+    ];
+
+    // Estado
+    let currentPosition = 'frontal';
+    let currentStyle = 'livre';
+    let currentSize = 'media';
+    let selectedPalette = { colors: 'terracotta and golden yellow, warm earth tones with cream', name: 'Terracota' };
+    let history = JSON.parse(localStorage.getItem('lune_localizado_v3_history') || '[]');
+
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', () => {
+      renderElementTags();
+      renderHistory();
+      updateStyleSection();
+    });
+
+    // Seleção de posição
+    function selectPosition(el) {
+      document.querySelectorAll('.position-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      currentPosition = el.dataset.position;
+    }
+
+    // Seleção de estilo
+    function selectStyle(el) {
+      document.querySelectorAll('.card[data-style]').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      currentStyle = el.dataset.style;
+      updateStyleSection();
+    }
+
+    function updateStyleSection() {
+      const section = document.getElementById('estiloLivreSection');
+      if (currentStyle === 'livre') {
+        section.style.display = 'block';
+      } else {
+        section.style.display = 'none';
+      }
+    }
+
+    // Seleção de tamanho
+    function selectSize(el) {
+      document.querySelectorAll('.card[data-size]').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      currentSize = el.dataset.size;
+    }
+
+    // Seleção de paleta
+    function selectPalette(el) {
+      document.querySelectorAll('.palette-option').forEach(p => p.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedPalette = {
+        colors: el.dataset.colors,
+        name: el.dataset.name
+      };
+      document.getElementById('useCustomColors').checked = false;
+      toggleCustomPalette();
+    }
+
+    // Paleta customizada
+    function toggleCustomPalette() {
+      const checkbox = document.getElementById('useCustomColors');
+      const colorsRow = document.getElementById('customColorsRow');
+      const customPalette = document.getElementById('customPalette');
+      
+      if (checkbox.checked) {
+        colorsRow.style.display = 'grid';
+        customPalette.classList.add('active');
+        document.querySelectorAll('.palette-option').forEach(p => p.classList.remove('selected'));
+      } else {
+        colorsRow.style.display = 'none';
+        customPalette.classList.remove('active');
+      }
+    }
+
+    // Inputs de cor
+    function updateHexInput(num) {
+      const colorPicker = document.getElementById(`customColor${num}`);
+      const hexInput = document.getElementById(`customHex${num}`);
+      hexInput.value = colorPicker.value.toUpperCase();
+    }
+
+    function updateColorPreview(num) {
+      const hexInput = document.getElementById(`customHex${num}`);
+      const colorPicker = document.getElementById(`customColor${num}`);
+      let value = hexInput.value.trim();
+      
+      if (!value.startsWith('#')) {
+        value = '#' + value;
+      }
+      
+      if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
+        colorPicker.value = value;
+        hexInput.value = value.toUpperCase();
+      }
+    }
+
+    // Toggle texto
+    function toggleTexto() {
+      const section = document.getElementById('textoSection');
+      const checkbox = document.getElementById('incluirTexto');
+      section.style.display = checkbox.checked ? 'block' : 'none';
+    }
+
+    // Toggle avançado
+    function toggleAdvanced() {
+      const content = document.getElementById('advancedContent');
+      const icon = document.getElementById('advancedIcon');
+      content.classList.toggle('open');
+      icon.textContent = content.classList.contains('open') ? '▲' : '▼';
+    }
+
+    // Renderizar tags de elementos
+    function renderElementTags() {
+      const container = document.getElementById('elementTags');
+      container.innerHTML = elementosNordeste.map(el => 
+        `<span class="tag" onclick="fillInput('elemento', '${el}')">${el}</span>`
+      ).join('');
+    }
+
+    // Preencher input
+    function fillInput(inputId, value) {
+      const input = document.getElementById(inputId);
+      if (input.value) {
+        input.value += ', ' + value;
+      } else {
+        input.value = value;
+      }
+    }
+
+    // Obter string de cores
+    function getColorString() {
+      if (document.getElementById('useCustomColors').checked) {
+        const colors = [];
+        for (let i = 1; i <= 5; i++) {
+          const hex = document.getElementById(`customHex${i}`).value || document.getElementById(`customColor${i}`).value;
+          if (hex && hex !== '#F4F1DE') { // ignora cor padrão se não alterada
+            colors.push(hex);
+          }
+        }
+        if (colors.length >= 2) {
+          return `custom color palette using ${colors.slice(0, 3).join(', ')} as main colors and ${colors.slice(3).join(', ')} as accents`;
+        }
+        return `custom color palette with ${colors.join(' and ')}`;
+      }
+      return selectedPalette.colors;
+    }
+
+    // Gerar prompt
+    function generatePrompt() {
+      const elemento = document.getElementById('elemento').value.trim();
+      const estiloLivre = document.getElementById('estiloLivre').value.trim();
+      const frasePrincipal = document.getElementById('frasePrincipal').value.trim();
+      const fraseSecundaria = document.getElementById('fraseSecundaria').value.trim();
+      const incluirTexto = document.getElementById('incluirTexto').checked;
+      const decorativo = document.getElementById('decorativo').value.trim();
+      const referencia = document.getElementById('referencia').value.trim();
+      const fundoCamiseta = document.getElementById('fundoCamiseta').value;
+      const proporcao = document.getElementById('proporcao').value;
+      
+      if (!elemento) {
+        showToast('Digite um elemento principal');
+        return;
+      }
+
+      const styleConfig = styleConfigs[currentStyle];
+      const posConfig = positionConfigs[currentPosition];
+      const sizeConfig = sizeConfigs[currentSize];
+      const colors = getColorString();
+      
+      // Construir prompt
+      let prompt = '';
+      
+      // Base do estilo
+      if (currentStyle === 'livre' && estiloLivre) {
+        prompt = `${estiloLivre}, t-shirt graphic design`;
+      } else {
+        prompt = styleConfig.basePrompt;
+      }
+      
+      // Elemento principal
+      prompt += `, featuring ${elemento} illustration`;
+      
+      // Posição e tamanho
+      prompt += `, ${posConfig.prompt}, ${sizeConfig}`;
+      
+      // Tipografia (se incluir texto)
+      if (incluirTexto && frasePrincipal) {
+        prompt += `, bold prominent text "${frasePrincipal}" as hero headline, large clear readable letters`;
+        if (fraseSecundaria) {
+          prompt += `, small footer text "${fraseSecundaria}" as secondary element`;
+        }
+        prompt += `, ${styleConfig.typoPrompt}, crisp legible typography`;
+      } else if (!incluirTexto) {
+        prompt += `, no text, purely illustrative design`;
+      }
+      
+      // Cores
+      prompt += `, ${colors}`;
+      
+      // Elementos decorativos
+      if (decorativo) {
+        prompt += `, decorated with ${decorativo}`;
+      }
+      
+      // Referência visual
+      if (referencia) {
+        prompt += `, inspired by ${referencia}`;
+      }
+      
+      // Cor da camiseta
+      if (fundoCamiseta === 'white') {
+        prompt += `, on white t-shirt mockup, clean white background`;
+      } else if (fundoCamiseta === 'off-white') {
+        prompt += `, on off-white cream natural cotton t-shirt`;
+      } else if (fundoCamiseta === 'black') {
+        prompt += `, on black t-shirt mockup, dark background`;
+      } else {
+        prompt += `, on colored t-shirt matching palette`;
+      }
+      
+      // Parâmetros técnicos
+      prompt += `, DTF print ready, high detail, professional quality --stylize 50 --ar ${proporcao} --v 7`;
+      
+      // Mostrar resultado
+      document.getElementById('promptText').textContent = prompt;
+      document.getElementById('resultado').classList.remove('hidden');
+      
+      // Salvar no histórico
+      saveToHistory(prompt);
+      
+      // Scroll para resultado
+      document.getElementById('resultado').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // Copiar prompt
+    function copyPrompt() {
+      const text = document.getElementById('promptText').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('Prompt copiado! ✨');
+      });
+    }
+
+    // Histórico
+    function saveToHistory(prompt) {
+      const entry = {
+        prompt,
+        style: styleConfigs[currentStyle].name,
+        position: currentPosition,
+        date: new Date().toLocaleString('pt-BR'),
+        timestamp: Date.now()
+      };
+      
+      history.unshift(entry);
+      if (history.length > 30) history.pop();
+      
+      localStorage.setItem('lune_localizado_v3_history', JSON.stringify(history));
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const container = document.getElementById('historyList');
+      
+      if (history.length === 0) {
+        container.innerHTML = '<div class="history-empty">Nenhum prompt gerado ainda</div>';
+        return;
+      }
+      
+      container.innerHTML = history.slice(0, 10).map((item, index) => `
+        <div class="history-item" onclick="loadFromHistory(${index})">
+          <div class="history-item-header">
+            <span class="history-item-style">${item.style} • ${item.position || 'frontal'}</span>
+            <span class="history-item-date">${item.date}</span>
+          </div>
+          <div class="history-item-preview">${item.prompt.substring(0, 90)}...</div>
+        </div>
+      `).join('');
+    }
+
+    function loadFromHistory(index) {
+      const item = history[index];
+      document.getElementById('promptText').textContent = item.prompt;
+      document.getElementById('resultado').classList.remove('hidden');
+      document.getElementById('resultado').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function clearHistory() {
+      if (!confirm('Limpar todo o histórico?')) return;
+      history = [];
+      localStorage.setItem('lune_localizado_v3_history', JSON.stringify(history));
+      renderHistory();
+      showToast('Histórico limpo');
+    }
+
+    // Toast
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+  </script>
+</body>
+</html>
