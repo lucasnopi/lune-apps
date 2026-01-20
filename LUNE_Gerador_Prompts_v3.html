@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LUNE - Gerador de Prompts v3</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // Dicionário de tradução PT → EN
+    const dicionario = {
+      // Elementos botânicos
+      "flor": "flower", "flores": "flowers", "folha": "leaf", "folhas": "leaves",
+      "pétala": "petal", "pétalas": "petals", "caule": "stem", "caules": "stems",
+      "galho": "branch", "galhos": "branches", "raiz": "root", "raízes": "roots",
+      "botão": "bud", "botões": "buds", "semente": "seed", "sementes": "seeds",
+      "fruta": "fruit", "frutas": "fruits", "fruto": "fruit", "frutos": "fruits",
+      // Plantas nordestinas
+      "mandacaru": "mandacaru cactus", "cacto": "cactus", "cactos": "cacti",
+      "palma": "prickly pear", "carnaúba": "carnauba palm", "caju": "cashew",
+      "cajueiro": "cashew tree", "coqueiro": "coconut palm", "coco": "coconut",
+      "ipê": "ipê tree", "ipê amarelo": "yellow ipê", "ipê rosa": "pink ipê",
+      "algodão": "cotton", "mamona": "castor plant", "umbuzeiro": "umbu tree",
+      "juazeiro": "juazeiro tree", "babaçu": "babassu palm", "buriti": "buriti palm",
+      "macaúba": "macauba palm", "açaí": "açaí", "pitaya": "pitaya", "maracujá": "passion fruit",
+      "goiaba": "guava", "manga": "mango", "abacaxi": "pineapple", "banana": "banana",
+      "laranja": "orange", "limão": "lemon", "lima": "lime",
+      "xique-xique": "xique-xique cactus", "facheiro": "facheiro cactus",
+      "flamboyant": "flamboyant tree", "jangada": "jangada boat",
+      "sisal": "sisal plant", "caatinga": "caatinga vegetation",
+      "catingueira": "catingueira tree", "aroeira": "aroeira tree",
+      "oiticica": "oiticica tree", "sabiá": "sabiá tree",
+      "graviola": "soursop", "jaca": "jackfruit", "tamarindo": "tamarind",
+      "seriguela": "seriguela fruit", "cajá": "cajá fruit", "umbu": "umbu fruit",
+      // Flores
+      "hibisco": "hibiscus", "rosa": "rose", "rosas": "roses", "orquídea": "orchid",
+      "girassol": "sunflower", "margarida": "daisy", "tulipa": "tulip", "lírio": "lily",
+      "jasmim": "jasmine", "lavanda": "lavender", "cravo": "carnation",
+      "alamanda": "allamanda", "bougainville": "bougainvillea", "helicônia": "heliconia",
+      "antúrio": "anthurium", "estrelícia": "bird of paradise", "bromélia": "bromeliad",
+      "ixora": "ixora", "alpínia": "alpinia", "bastão do imperador": "torch ginger",
+      // Animais nordestinos
+      "pássaro": "bird", "pássaros": "birds", "ave": "bird", "aves": "birds",
+      "borboleta": "butterfly", "borboletas": "butterflies", "beija-flor": "hummingbird",
+      "tucano": "toucan", "arara": "macaw", "papagaio": "parrot", "flamingo": "flamingo",
+      "libélula": "dragonfly", "abelha": "bee", "joaninha": "ladybug",
+      "arara azul": "blue macaw", "arara vermelha": "scarlet macaw",
+      "seriema": "seriema bird", "sabiá": "sabiá bird", "bem-te-vi": "bem-te-vi bird",
+      "galo de campina": "galo de campina bird", "carcará": "carcará bird",
+      "tatu": "armadillo", "preá": "guinea pig", "mocó": "mocó rodent",
+      // Cores
+      "vermelho": "red", "azul": "blue", "verde": "green", "amarelo": "yellow",
+      "laranja": "orange", "roxo": "purple", "rosa": "pink", "marrom": "brown",
+      "preto": "black", "branco": "white", "cinza": "gray", "dourado": "gold",
+      "prata": "silver", "bege": "beige", "creme": "cream", "coral": "coral",
+      "turquesa": "turquoise", "terracota": "terracotta", "vinho": "wine",
+      "mostarda": "mustard", "oliva": "olive", "salmão": "salmon", "pêssego": "peach",
+      "lavanda": "lavender", "lilás": "lilac", "magenta": "magenta", "ciano": "cyan",
+      "marinho": "navy", "petróleo": "teal", "ferrugem": "rust", "areia": "sand",
+      "ocre": "ochre", "índigo": "indigo", "cereja": "cherry", "âmbar": "amber",
+      // Tons e modificadores
+      "claro": "light", "escuro": "dark", "pastel": "pastel", "vibrante": "vibrant",
+      "suave": "soft", "intenso": "intense", "pálido": "pale", "profundo": "deep",
+      "quente": "warm", "frio": "cool", "neutro": "neutral", "terroso": "earthy",
+      "saturado": "saturated", "diluído": "diluted", "luminoso": "luminous",
+      // Estilos e técnicas
+      "aquarela": "watercolor", "óleo": "oil painting", "nanquim": "ink",
+      "bordado": "embroidery", "renda": "lace", "crochê": "crochet", "tricô": "knit",
+      "estampa": "print", "padrão": "pattern", "textura": "texture",
+      "listras": "stripes", "listrado": "striped", "xadrez": "plaid", "poá": "polka dots",
+      "floral": "floral", "geométrico": "geometric", "abstrato": "abstract",
+      "tropical": "tropical", "botânico": "botanical", "orgânico": "organic",
+      "delicado": "delicate", "rústico": "rustic", "elegante": "elegant",
+      "minimalista": "minimalist", "maximalista": "maximalist", "vintage": "vintage",
+      "retrô": "retro", "moderno": "modern", "clássico": "classic",
+      "artesanal": "handmade", "feito à mão": "handmade", "manual": "handcrafted",
+      "naïf": "naive art", "folk": "folk art", "primitivo": "primitive art",
+      // Composição
+      "grande": "large", "pequeno": "small", "médio": "medium",
+      "espalhado": "scattered", "agrupado": "clustered", "isolado": "isolated",
+      "central": "centered", "diagonal": "diagonal", "ondulante": "flowing",
+      "repetido": "repeated", "aleatório": "random", "organizado": "organized",
+      "denso": "dense", "espaçado": "spaced", "respiro": "breathing space",
+      "simétrico": "symmetrical", "assimétrico": "asymmetrical",
+      // Materiais e acabamentos
+      "algodão": "cotton", "linho": "linen", "seda": "silk", "cetim": "satin",
+      "veludo": "velvet", "chiffon": "chiffon", "renda": "lace", "malha": "jersey",
+      "tecido": "fabric", "têxtil": "textile", "fio": "thread", "linha": "thread",
+      // Descritivos gerais
+      "bonito": "beautiful", "lindo": "beautiful", "sofisticado": "sophisticated",
+      "luxuoso": "luxurious", "simples": "simple", "complexo": "complex",
+      "detalhado": "detailed", "sutil": "subtle", "marcante": "striking",
+      "harmonioso": "harmonious", "contrastante": "contrasting",
+      "tradicional": "traditional", "contemporâneo": "contemporary",
+      "nordestino": "northeastern Brazilian", "brasileiro": "Brazilian", "ceará": "Ceará",
+      "poético": "poetic", "feminino": "feminine", "autoral": "authorial",
+      // Conectores e preposições
+      "com": "with", "sem": "without", "sobre": "on", "em": "in", "de": "of",
+      "e": "and", "ou": "or", "para": "for", "como": "like",
+    };
+
+    // Função de tradução
+    const traduzir = (texto) => {
+      if (!texto) return "";
+      let resultado = texto.toLowerCase();
+      
+      // Ordenar por tamanho (maior primeiro) para evitar traduções parciais
+      const termos = Object.keys(dicionario).sort((a, b) => b.length - a.length);
+      
+      termos.forEach(pt => {
+        const regex = new RegExp(`\\b${pt}\\b`, 'gi');
+        resultado = resultado.replace(regex, dicionario[pt]);
+      });
+      
+      return resultado;
+    };
+
+    const composicaoOpts = [
+      { id: "elemento", label: "Elemento Único", v: "single isolated element on pure white background, centered, generous negative space around, no other elements" },
+      { id: "trail", label: "Trilhas Ondulantes", v: "tumbling trails flowing diagonally, organic movement, continuous flow" },
+      { id: "scatter", label: "70% Respiro", v: "scattered elements with 70% white space, breathing room, airy composition" },
+      { id: "allover", label: "All-Over Denso", v: "allover dense pattern covering entire surface, rich maximalist" },
+      { id: "barrada", label: "Barrada/Barra", v: "border composition, elements concentrated on edges, decorative band" },
+      { id: "bouquet", label: "Buquê Central", v: "central bouquet arrangement, focal composition, gathered flowers" },
+      { id: "diagonal", label: "Diagonal", v: "diagonal composition, dynamic ascending movement across frame" },
+      { id: "half", label: "Half-Drop", v: "half-drop repeat pattern, offset seamless tile" },
+      { id: "placement", label: "Placement/Localizado", v: "placed print composition, positioned artwork, engineered placement" },
+      { id: "mirror", label: "Espelhado/Simétrico", v: "mirrored symmetrical composition, perfect bilateral symmetry" },
+      { id: "radial", label: "Radial/Mandala", v: "radial composition expanding from center, mandala-like arrangement" },
+      { id: "cascata", label: "Cascata", v: "cascading waterfall composition, elements flowing downward, vertical movement" },
+    ];
+
+    const fundoOpts = [
+      { id: "white", label: "Branco Puro", v: "pure white background" },
+      { id: "offwhite", label: "Off-White", v: "off-white cream background with subtle paper texture" },
+      { id: "dark", label: "Marinho", v: "dark navy blue background" },
+      { id: "black", label: "Preto", v: "black background" },
+      { id: "transparent", label: "Transparente", v: "transparent background, isolated elements, PNG style" },
+      { id: "sage", label: "Verde Sage", v: "soft sage green background" },
+      { id: "terracota", label: "Terracota", v: "warm terracotta background" },
+      { id: "blush", label: "Rosa Blush", v: "soft blush pink background" },
+      { id: "areia", label: "Areia", v: "warm sand beige background" },
+      { id: "lavanda", label: "Lavanda", v: "soft lavender background" },
+    ];
+
+    const tecnicaOpts = [
+      { id: "watercolor", label: "Aquarela Básica", v: "watercolor painting, hand-painted, soft edges" },
+      { id: "lune", label: "✨ Aquarela LUNE", v: "transparent watercolor with diluted luminous washes, wet-on-wet color bleeding at edges, soft diffused transitions, delicate ink outlines with fine Winsor Newton pen, visible cold press paper grain texture, organic brushstrokes with artisanal charm, sophisticated botanical illustration finish" },
+      { id: "gouache", label: "Guache Opaco", v: "opaque gouache painting, flat saturated color blocks, visible directional brushstrokes, matte finish, naive folk art style" },
+      { id: "ink", label: "Aquarela + Nanquim", v: "watercolor with fine ink outlines, delicate linework, transparent washes with defined contours" },
+      { id: "handpainted", label: "Hand-Painted", v: "hand-painted artisanal texture, organic brushwork, imperfect charming finish" },
+      { id: "sketch", label: "Sketch Solto", v: "loose pencil sketch, hand-drawn gestural lines, artistic spontaneous quality" },
+      { id: "flat", label: "Flat/Vetorial", v: "flat solid colors, clean vector style, no gradients, graphic design aesthetic" },
+      { id: "botanical", label: "Ilustração Botânica", v: "scientific botanical illustration, precise detail, naturalistic accuracy, educational style" },
+      { id: "digital", label: "Digital Clean", v: "digital illustration, clean smooth lines, polished contemporary finish" },
+      { id: "naif", label: "Naïf/Folk Art", v: "naive folk art style, simplified forms, charming imperfections, childlike wonder, decorative patterns" },
+    ];
+
+    const STORAGE_KEY = "lune_prompt_generator";
+
+    function App() {
+      // Campos livres
+      const [estilo, setEstilo] = useState("");
+      const [artista, setArtista] = useState("");
+      const [elementos, setElementos] = useState("");
+      const [hexColors, setHexColors] = useState("");
+      
+      // Campos com opções
+      const [composicao, setComposicao] = useState(null);
+      const [fundo, setFundo] = useState(null);
+      const [tecnica, setTecnica] = useState(null);
+      
+      // Parâmetros
+      const [ar, setAr] = useState("1:1");
+      const [tile, setTile] = useState(true);
+      const [stylize, setStylize] = useState(50);
+      const [extra, setExtra] = useState("");
+      
+      // UI
+      const [copied, setCopied] = useState(false);
+      const [history, setHistory] = useState([]);
+
+      // Load from localStorage
+      useEffect(() => {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const data = JSON.parse(saved);
+          setHistory(data.history || []);
+        }
+      }, []);
+
+      // Save history to localStorage
+      useEffect(() => {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ history }));
+      }, [history]);
+
+      const generatePrompt = () => {
+        const parts = [];
+        
+        // Estilo base (traduzido)
+        if (estilo.trim()) parts.push(traduzir(estilo.trim()));
+        
+        // Artista/Designer (não traduz nomes)
+        if (artista.trim()) parts.push(`in the style of ${artista.trim()}`);
+        
+        // Composição
+        if (composicao) {
+          const comp = composicaoOpts.find(c => c.id === composicao);
+          if (comp) parts.push(comp.v);
+        }
+        
+        // Elementos (traduzido)
+        if (elementos.trim()) parts.push(traduzir(elementos.trim()));
+        
+        // Paleta (hex colors)
+        if (hexColors.trim()) {
+          parts.push(`color palette: ${hexColors.trim()}`);
+        }
+        
+        // Fundo
+        if (fundo) {
+          const f = fundoOpts.find(x => x.id === fundo);
+          if (f) parts.push(f.v);
+        }
+        
+        // Técnica
+        if (tecnica) {
+          const t = tecnicaOpts.find(x => x.id === tecnica);
+          if (t) parts.push(t.v);
+        }
+        
+        // Extra (traduzido)
+        if (extra.trim()) parts.push(traduzir(extra.trim()));
+        
+        if (!parts.length) return "";
+        
+        // Parâmetros MJ v7
+        const params = [`--ar ${ar}`];
+        if (tile && composicao !== "elemento") params.push("--tile");
+        params.push(`--stylize ${stylize}`);
+        params.push("--v 7");
+        
+        return parts.join(", ") + " " + params.join(" ");
+      };
+
+      const prompt = generatePrompt();
+
+      const copy = () => {
+        if (prompt) {
+          navigator.clipboard.writeText(prompt);
+          setCopied(true);
+          // Add to history
+          if (!history.includes(prompt)) {
+            setHistory(prev => [prompt, ...prev].slice(0, 20));
+          }
+          setTimeout(() => setCopied(false), 1500);
+        }
+      };
+
+      const clear = () => {
+        setEstilo("");
+        setArtista("");
+        setElementos("");
+        setHexColors("");
+        setComposicao(null);
+        setFundo(null);
+        setTecnica(null);
+        setExtra("");
+      };
+
+      const loadFromHistory = (p) => {
+        navigator.clipboard.writeText(p);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1500);
+      };
+
+      const clearHistory = () => {
+        if (confirm("Limpar histórico?")) {
+          setHistory([]);
+        }
+      };
+
+      const Btn = ({ on, onClick, children }) => (
+        <button 
+          onClick={onClick} 
+          className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+            on 
+              ? "bg-emerald-700 text-white shadow-sm" 
+              : "bg-white text-stone-600 border border-stone-200 hover:bg-stone-50"
+          }`}
+        >
+          {children}
+        </button>
+      );
+
+      return (
+        <div className="min-h-screen bg-stone-100 p-4 sm:p-6">
+          <div className="max-w-3xl mx-auto">
+            {/* Header */}
+            <div className="mb-6">
+              <h1 className="text-2xl font-semibold text-stone-800 mb-1">✨ Gerador de Prompts</h1>
+              <p className="text-sm text-stone-500">Midjourney v7 • Prompts em inglês</p>
+            </div>
+
+            <div className="space-y-4">
+              {/* Estilo Base - Campo Livre */}
+              <div className="bg-white rounded-xl p-4 shadow-sm">
+                <h3 className="text-sm font-semibold text-stone-700 mb-2">ESTILO BASE</h3>
+                <input
+                  type="text"
+                  value={estilo}
+                  onChange={(e) => setEstilo(e.target.value)}
+                  placeholder="Ex: estilo Liberty London, floral delicado, aquarela botânica..."
+                  className="w-full p-3 rounded-lg border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+                <p className="text-xs text-stone-400 mt-1">Descreva o estilo de referência (pode escrever em português)</p>
+              </div>
+
+              {/* Artista/Designer - Campo Livre */}
+              <div className="bg-white rounded-xl p-4 shadow-sm">
+                <h3 className="text-sm font-semibold text-stone-700 mb-2">ARTISTA / DESIGNER <span className="font-normal text-stone-400">(opcional)</span></h3>
+                <input
+                  type="text"
+                  value={artista}
+                  onChange={(e) => setArtista(e.target.value)}
+                  placeholder="Ex: Polly Mason, Josef Frank, William Morris..."
+                  className="w-full p-3 rounded-lg border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+                <p className="text-xs text-stone-400 mt-1">Gera: "in the style of [nome]"</p>
+              </div>
+
+              {/* Elementos - Campo Livre */}
+              <div className="bg-white rounded-xl p-4 shadow-sm">
+                <h3 className="text-sm font-semibold text-stone-700 mb-2">ELEMENTOS</h3>
+                <textarea
+                  value={elementos}
+                  onChange={(e) => setElementos(e.target.value)}
+                  placeholder="Ex: flores tropicais, folhas de coqueiro, caju, hibisco, pássaros..."
+                  rows={2}
+                  className="w-full p-3 rounded-lg border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+                <p className="text-xs text-stone-400 mt-1">Descreva os elementos (pode escrever em português — será traduzido)</p>
+              </div>
+
+              {/* Composição */}
+              <div className="bg-white rounded-xl p-4 shadow-sm">
+                <h3 className="text-sm font-semibold text-stone-700 mb-3">COMPOSIÇÃO</h3>
+                <div className="flex flex-wrap gap-2">
+                  {composicaoOpts.map(o => (
+                    <Btn 
+                      key={o.id} 
+                      on={composicao === o.id} 
+                      onClick={() => setComposicao(composicao === o.id ? null : o.id)}
+                    >
+                      {o.label}
+                    </Btn>
+                  ))}
+                </div>
+              </div>
+
+              {/* Paleta - Campo para Hex */}
+              <div className="bg-white rounded-xl p-4 shadow-sm">
+                <h3 className="text-sm font-semibold text-stone-700 mb-2">PALETA DE CORES</h3>
+                <input
+                  type="text"
+                  value={hexColors}
+                  onChange={(e) => setHexColors(e.target.value)}
+                  placeholder="Cole os hex: #E07A5F, #4A6741, #C4A77D..."
+                  className="w-full p-3 rounded-lg border border-stone-200 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+                <p className="text-xs text-stone-400 mt-1">Copie da ferramenta de paletas e cole aqui</p>
+                
+                {/* Preview das cores */}
+                {hexColors && (
+                  <div className="flex gap-1 mt-2 flex-wrap">
+                    {hexColors.split(/[,\s]+/).filter(c => c.match(/^#?[0-9A-Fa-f]{6}$/)).map((color, i) => (
+                      <div 
+                        key={i}
+                        className="w-8 h-8 rounded-lg border border-stone-200"
+                        style={{ backgroundColor: color.startsWith('#') ? color : `#${color}` }}
+                        title={color}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Fundo */}
+              <div className="bg-white rounded-xl p-4 shadow-sm">
+                <h3 className="text-sm font-semibold text-stone-700 mb-3">FUNDO</h3>
+                <div className="flex flex-wrap gap-2">
+                  {fundoOpts.map(o => (
+                    <Btn 
+                      key={o.id} 
+                      on={fundo === o.id} 
+                      onClick={() => setFundo(fundo === o.id ? null : o.id)}
+                    >
+                      {o.label}
+                    </Btn>
+                  ))}
+                </div>
+              </div>
+
+              {/* Técnica */}
+              <div className="bg-white rounded-xl p-4 shadow-sm">
+                <h3 className="text-sm font-semibold text-stone-700 mb-3">TÉCNICA</h3>
+                <div className="flex flex-wrap gap-2">
+                  {tecnicaOpts.map(o => (
+                    <Btn 
+                      key={o.id} 
+                      on={tecnica === o.id} 
+                      onClick={() => setTecnica(tecnica === o.id ? null : o.id)}
+                    >
+                      {o.label}
+                    </Btn>
+                  ))}
+                </div>
+              </div>
+
+              {/* Extra */}
+              <div className="bg-white rounded-xl p-4 shadow-sm">
+                <h3 className="text-sm font-semibold text-stone-700 mb-2">TEXTO EXTRA <span className="font-normal text-stone-400">(opcional)</span></h3>
+                <input
+                  type="text"
+                  value={extra}
+                  onChange={(e) => setExtra(e.target.value)}
+                  placeholder="Ex: detalhado, luz suave, estilo vintage, delicado..."
+                  className="w-full p-3 rounded-lg border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+
+              {/* Parâmetros */}
+              <div className="bg-white rounded-xl p-4 shadow-sm">
+                <h3 className="text-sm font-semibold text-stone-700 mb-3">PARÂMETROS</h3>
+                <div className="flex flex-wrap gap-4 items-start">
+                  {/* Aspect Ratio */}
+                  <div>
+                    <label className="text-xs text-stone-500 block mb-2">Proporção</label>
+                    <div className="flex gap-2">
+                      {["1:1", "2:3", "3:2", "4:3", "3:4", "16:9", "9:16"].map(r => (
+                        <Btn key={r} on={ar === r} onClick={() => setAr(r)}>{r}</Btn>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Tile */}
+                  <div>
+                    <label className="text-xs text-stone-500 block mb-2">Seamless</label>
+                    <label className="flex items-center gap-2 text-sm text-stone-600 cursor-pointer bg-stone-50 px-3 py-2 rounded-lg">
+                      <input 
+                        type="checkbox" 
+                        checked={tile} 
+                        onChange={() => setTile(!tile)} 
+                        className="rounded w-4 h-4 text-emerald-600"
+                        disabled={composicao === "elemento"}
+                      />
+                      --tile
+                    </label>
+                  </div>
+
+                  {/* Stylize */}
+                  <div className="flex-1 min-w-48">
+                    <label className="text-xs text-stone-500 block mb-2">--stylize {stylize}</label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="1000"
+                      step="50"
+                      value={stylize}
+                      onChange={(e) => setStylize(Number(e.target.value))}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-xs text-stone-400">
+                      <span>0</span>
+                      <span>50 ✓</span>
+                      <span>1000</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Output */}
+            <div className="mt-6 bg-stone-800 rounded-xl p-4 shadow-lg">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="text-sm font-semibold text-stone-300">PROMPT (inglês)</h3>
+                <button onClick={clear} className="text-xs text-stone-400 hover:text-white transition-colors">
+                  Limpar
+                </button>
+              </div>
+              <div className="bg-stone-900 rounded-lg p-4 min-h-24 mb-4">
+                {prompt ? (
+                  <p className="text-stone-200 text-sm font-mono leading-relaxed break-words">{prompt}</p>
+                ) : (
+                  <p className="text-stone-500 text-sm italic">Preencha os campos acima...</p>
+                )}
+              </div>
+              <button
+                onClick={copy}
+                disabled={!prompt}
+                className={`w-full py-3 rounded-lg font-medium transition-colors ${
+                  prompt
+                    ? copied
+                      ? "bg-emerald-600 text-white"
+                      : "bg-white text-stone-800 hover:bg-stone-100"
+                    : "bg-stone-700 text-stone-500 cursor-not-allowed"
+                }`}
+              >
+                {copied ? "✓ Copiado!" : "Copiar Prompt"}
+              </button>
+            </div>
+
+            {/* History */}
+            {history.length > 0 && (
+              <div className="mt-6 bg-white rounded-xl p-4 shadow-sm">
+                <div className="flex justify-between items-center mb-3">
+                  <h3 className="text-sm font-semibold text-stone-700">HISTÓRICO</h3>
+                  <button onClick={clearHistory} className="text-xs text-stone-400 hover:text-red-500">
+                    Limpar
+                  </button>
+                </div>
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {history.map((p, i) => (
+                    <button
+                      key={i}
+                      onClick={() => loadFromHistory(p)}
+                      className="w-full text-left p-2 rounded-lg bg-stone-50 hover:bg-stone-100 transition-colors"
+                    >
+                      <p className="text-xs text-stone-600 font-mono truncate">{p}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Footer */}
+            <div className="mt-8 text-center text-xs text-stone-400">
+              <p>LUNE Gerador v3.0 • Midjourney v7</p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
