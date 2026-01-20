@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LUNE - Paleta de Cores v5</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .gradient-preview { background: linear-gradient(to right, var(--c1), var(--c2)); }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    const categories = {
+      "LUNE Principal": {
+        "LUNE Clássica": [
+          { name: "Verde Floresta", hex: "#2D5016" },
+          { name: "Verde Sage", hex: "#4A6741" },
+          { name: "Rosa Coral", hex: "#E07A5F" },
+          { name: "Amarelo Ocre", hex: "#C4A77D" },
+          { name: "Off-White", hex: "#FDFBF7" },
+          { name: "Terracota", hex: "#B85C38" },
+        ],
+        "Symphony Escuro": [
+          { name: "Marinho", hex: "#1A1A2E" },
+          { name: "Turquesa", hex: "#2FBFB3" },
+          { name: "Coral", hex: "#E07A5F" },
+          { name: "Rosa Pálido", hex: "#F2C4C4" },
+          { name: "Azul Céu", hex: "#7FB3D5" },
+          { name: "Verde Oliva", hex: "#5D6B4B" },
+          { name: "Magenta", hex: "#9B4F7A" },
+          { name: "Creme", hex: "#F5E6D3" },
+        ],
+        "Symphony Claro": [
+          { name: "Off-White", hex: "#FDFBF7" },
+          { name: "Rosa Pastel", hex: "#F4B4C4" },
+          { name: "Azul Bebê", hex: "#A8D5E5" },
+          { name: "Amarelo Limão", hex: "#F7E77A" },
+          { name: "Verde Menta", hex: "#8FD5A6" },
+          { name: "Coral Suave", hex: "#F4A4A4" },
+          { name: "Lilás", hex: "#D4A4D9" },
+        ],
+        "Morena Tropicana": [
+          { name: "Laranja Caju", hex: "#E86A33" },
+          { name: "Amarelo Manga", hex: "#F7C548" },
+          { name: "Rosa Pitaya", hex: "#D64A7B" },
+          { name: "Verde Coco", hex: "#5A8F6B" },
+          { name: "Roxo Açaí", hex: "#5C3D6E" },
+          { name: "Creme", hex: "#FFF8E7" },
+        ],
+        "Aquarela Nordestina": [
+          { name: "Azul Sertão", hex: "#4A7C9B" },
+          { name: "Rosa Ipê", hex: "#E8A4B8" },
+          { name: "Amarelo Cajá", hex: "#F4C95D" },
+          { name: "Verde Carnaúba", hex: "#6B8E5A" },
+          { name: "Terracota", hex: "#C67B5C" },
+          { name: "Areia", hex: "#E8DCC8" },
+        ],
+      },
+      "Degradês 2 Cores": {
+        "Navy + Prata": [
+          { name: "Navy Escuro", hex: "#1C2541" },
+          { name: "Cinza Prata", hex: "#A9B4C2" },
+        ],
+        "Magenta + Púrpura": [
+          { name: "Magenta Intenso", hex: "#9B2B5A" },
+          { name: "Púrpura Profundo", hex: "#4A1259" },
+        ],
+        "Pêssego + Dourado": [
+          { name: "Pêssego Suave", hex: "#E8B298" },
+          { name: "Dourado Queimado", hex: "#C4943D" },
+        ],
+        "Vinho + Rosa": [
+          { name: "Vinho Escuro", hex: "#722F37" },
+          { name: "Rosa Antigo", hex: "#C76B7E" },
+        ],
+        "Laranja + Amarelo": [
+          { name: "Laranja Vibrante", hex: "#F27935" },
+          { name: "Amarelo Dourado", hex: "#F4B942" },
+        ],
+        "Turquesa + Azul": [
+          { name: "Turquesa", hex: "#3DB8B8" },
+          { name: "Azul Cobalto", hex: "#2E5A8B" },
+        ],
+        "Lilás + Rosa": [
+          { name: "Lilás", hex: "#9B7BB8" },
+          { name: "Rosa Claro", hex: "#E8A4B8" },
+        ],
+      },
+      "Bauhaus": {
+        "Bauhaus Azuis": [
+          { name: "Navy Profundo", hex: "#1A2151" },
+          { name: "Índigo", hex: "#3D4785" },
+          { name: "Azul Médio", hex: "#5C6BC0" },
+          { name: "Lavanda", hex: "#9FA8DA" },
+          { name: "Creme Fundo", hex: "#F5F0E6" },
+        ],
+        "Bauhaus Primárias": [
+          { name: "Vermelho Bauhaus", hex: "#E53935" },
+          { name: "Amarelo Bauhaus", hex: "#FDD835" },
+          { name: "Azul Bauhaus", hex: "#1E88E5" },
+          { name: "Preto", hex: "#212121" },
+          { name: "Branco", hex: "#FAFAFA" },
+        ],
+        "Bauhaus Terrosos": [
+          { name: "Terracota", hex: "#BF5B3F" },
+          { name: "Mostarda", hex: "#C9A227" },
+          { name: "Verde Musgo", hex: "#5D6B4B" },
+          { name: "Marrom", hex: "#6D4C3D" },
+          { name: "Creme", hex: "#F5E6D3" },
+        ],
+      },
+      "Folk Art Escandinavo": {
+        "Folk Completa": [
+          { name: "Azul Petróleo", hex: "#4A6670" },
+          { name: "Rosa Antigo", hex: "#C98B9B" },
+          { name: "Lilás", hex: "#B8A4C8" },
+          { name: "Mostarda", hex: "#D4A84B" },
+          { name: "Coral Vermelho", hex: "#C65D4A" },
+          { name: "Verde Musgo", hex: "#5A7B5A" },
+          { name: "Creme", hex: "#F5E6D3" },
+          { name: "Verde Oliva", hex: "#6B7B4A" },
+        ],
+        "Folk Quentes": [
+          { name: "Coral", hex: "#C65D4A" },
+          { name: "Rosa Antigo", hex: "#C98B9B" },
+          { name: "Mostarda", hex: "#D4A84B" },
+          { name: "Laranja Suave", hex: "#E8A87B" },
+          { name: "Creme", hex: "#F5E6D3" },
+        ],
+        "Folk Frias": [
+          { name: "Azul Petróleo", hex: "#4A6670" },
+          { name: "Lilás", hex: "#B8A4C8" },
+          { name: "Verde Musgo", hex: "#5A7B5A" },
+          { name: "Azul Acinzentado", hex: "#7B8B9B" },
+          { name: "Verde Oliva", hex: "#6B7B4A" },
+        ],
+      },
+      "Calendário Mensal": {
+        "Janeiro - Azuis Frios": [
+          { name: "Azul Gelo", hex: "#E0F7FA" },
+          { name: "Ciano", hex: "#4DD0E1" },
+          { name: "Turquesa", hex: "#00ACC1" },
+          { name: "Azul Profundo", hex: "#006064" },
+          { name: "Roxo Frio", hex: "#5E35B1" },
+          { name: "Índigo", hex: "#3949AB" },
+        ],
+        "Fevereiro - Rosas": [
+          { name: "Rosa Claro", hex: "#FCE4EC" },
+          { name: "Rosa Bebê", hex: "#F8BBD9" },
+          { name: "Rosa Médio", hex: "#EC407A" },
+          { name: "Magenta", hex: "#AD1457" },
+          { name: "Vinho", hex: "#880E4F" },
+          { name: "Rosa Quente", hex: "#C2185B" },
+        ],
+        "Março - Verdes": [
+          { name: "Verde Claro", hex: "#C8E6C9" },
+          { name: "Verde Menta", hex: "#81C784" },
+          { name: "Verde Médio", hex: "#4CAF50" },
+          { name: "Verde Escuro", hex: "#2E7D32" },
+          { name: "Verde Floresta", hex: "#1B5E20" },
+          { name: "Verde Azulado", hex: "#00695C" },
+        ],
+        "Abril - Amarelos": [
+          { name: "Amarelo Claro", hex: "#FFFDE7" },
+          { name: "Amarelo Pastel", hex: "#FFF59D" },
+          { name: "Amarelo Médio", hex: "#FFEE58" },
+          { name: "Amarelo Vibrante", hex: "#FDD835" },
+          { name: "Amarelo Dourado", hex: "#FBC02D" },
+          { name: "Âmbar", hex: "#F9A825" },
+        ],
+        "Maio - Lilás Pastéis": [
+          { name: "Lavanda Claro", hex: "#E1BEE7" },
+          { name: "Lilás", hex: "#BA68C8" },
+          { name: "Rosa Lilás", hex: "#F48FB1" },
+          { name: "Azul Lavanda", hex: "#90CAF9" },
+          { name: "Turquesa Claro", hex: "#80DEEA" },
+          { name: "Verde Água", hex: "#80CBC4" },
+        ],
+        "Junho - Neutros Quentes": [
+          { name: "Creme", hex: "#FFF8E1" },
+          { name: "Bege", hex: "#FFECB3" },
+          { name: "Amarelo Suave", hex: "#FFE082" },
+          { name: "Taupe", hex: "#BCAAA4" },
+          { name: "Cinza Quente", hex: "#A1887F" },
+          { name: "Marrom Claro", hex: "#8D6E63" },
+        ],
+        "Julho - Azuis Vermelhos": [
+          { name: "Azul Claro", hex: "#BBDEFB" },
+          { name: "Azul Médio", hex: "#64B5F6" },
+          { name: "Azul Royal", hex: "#1976D2" },
+          { name: "Vermelho Claro", hex: "#EF9A9A" },
+          { name: "Vermelho", hex: "#F44336" },
+          { name: "Vermelho Escuro", hex: "#C62828" },
+        ],
+        "Agosto - Laranjas": [
+          { name: "Laranja Claro", hex: "#FFE0B2" },
+          { name: "Laranja Pastel", hex: "#FFCC80" },
+          { name: "Laranja Médio", hex: "#FFA726" },
+          { name: "Laranja Vibrante", hex: "#FB8C00" },
+          { name: "Laranja Escuro", hex: "#EF6C00" },
+          { name: "Vermelho Laranja", hex: "#E65100" },
+        ],
+        "Setembro - Cinzas": [
+          { name: "Cinza Claro", hex: "#F5F5F5" },
+          { name: "Cinza Médio", hex: "#BDBDBD" },
+          { name: "Cinza Escuro", hex: "#757575" },
+          { name: "Amarelo Accent", hex: "#FFEB3B" },
+          { name: "Carvão", hex: "#424242" },
+          { name: "Preto Suave", hex: "#212121" },
+        ],
+        "Outubro - Terrosos": [
+          { name: "Creme", hex: "#EFEBE9" },
+          { name: "Bege Rosado", hex: "#D7CCC8" },
+          { name: "Marrom Claro", hex: "#A1887F" },
+          { name: "Marrom Médio", hex: "#795548" },
+          { name: "Marrom Escuro", hex: "#5D4037" },
+          { name: "Chocolate", hex: "#3E2723" },
+        ],
+        "Novembro - Corais": [
+          { name: "Pêssego Claro", hex: "#FFECD2" },
+          { name: "Coral Suave", hex: "#FFAB91" },
+          { name: "Coral Médio", hex: "#FF8A65" },
+          { name: "Coral Vibrante", hex: "#FF7043" },
+          { name: "Laranja Coral", hex: "#FF5722" },
+          { name: "Terracota", hex: "#BF360C" },
+        ],
+        "Dezembro - Natal": [
+          { name: "Verde Pinho", hex: "#2E7D32" },
+          { name: "Verde Escuro", hex: "#1B5E20" },
+          { name: "Vermelho Natal", hex: "#C62828" },
+          { name: "Vermelho Escuro", hex: "#B71C1C" },
+          { name: "Dourado", hex: "#FFD54F" },
+          { name: "Creme", hex: "#FFF8E1" },
+        ],
+      },
+      "Trendy Boho": {
+        "Boho Rosados": [
+          { name: "Vinho Profundo", hex: "#722F37" },
+          { name: "Rosa Antigo", hex: "#B56576" },
+          { name: "Rosa Blush", hex: "#E8B4B8" },
+          { name: "Rosa Pálido", hex: "#F5E1E0" },
+          { name: "Nude Rosado", hex: "#EACDC2" },
+          { name: "Mauve", hex: "#B08D8D" },
+          { name: "Dusty Rose", hex: "#C9A9A6" },
+        ],
+        "Boho Terrosos": [
+          { name: "Terracota Escuro", hex: "#8B4513" },
+          { name: "Terracota", hex: "#C65D3B" },
+          { name: "Laranja Queimado", hex: "#D2691E" },
+          { name: "Caramelo", hex: "#C68642" },
+          { name: "Areia", hex: "#D4B896" },
+          { name: "Bege Quente", hex: "#E8D4B8" },
+          { name: "Marrom Café", hex: "#6F4E37" },
+        ],
+        "Boho Mostardas": [
+          { name: "Mostarda Escuro", hex: "#9B7E2E" },
+          { name: "Mostarda", hex: "#C4A035" },
+          { name: "Amarelo Curry", hex: "#DAA520" },
+          { name: "Dourado Suave", hex: "#E8C872" },
+          { name: "Creme Dourado", hex: "#F5E6B8" },
+          { name: "Ocre", hex: "#CC7722" },
+        ],
+        "Boho Verdes": [
+          { name: "Verde Escuro", hex: "#2D5A3D" },
+          { name: "Verde Floresta", hex: "#4A7C59" },
+          { name: "Verde Oliva", hex: "#6B8E5A" },
+          { name: "Sage", hex: "#9CAF88" },
+          { name: "Verde Menta", hex: "#B8D4B8" },
+          { name: "Verde Claro", hex: "#C5E0B4" },
+        ],
+        "Boho Azuis Petróleo": [
+          { name: "Petróleo Escuro", hex: "#1A4A4A" },
+          { name: "Teal", hex: "#2E8B8B" },
+          { name: "Turquesa Escuro", hex: "#3D8B8B" },
+          { name: "Azul Acinzentado", hex: "#5D8A9B" },
+          { name: "Azul Suave", hex: "#8BB8C8" },
+          { name: "Azul Claro", hex: "#B8D4E3" },
+        ],
+      },
+      "Mushroom Atlas": {
+        "Cogumelos Quentes": [
+          { name: "Terracota Fungi", hex: "#C1714F" },
+          { name: "Laranja Chanterelle", hex: "#E8A85C" },
+          { name: "Amarelo Puffball", hex: "#E8C872" },
+          { name: "Creme Champignon", hex: "#F5E6D3" },
+          { name: "Bege Shiitake", hex: "#D4B896" },
+          { name: "Marrom Porcini", hex: "#8B6F4E" },
+        ],
+        "Cogumelos Frios": [
+          { name: "Verde Musgo", hex: "#6B8E5A" },
+          { name: "Teal Fungi", hex: "#4A8B8B" },
+          { name: "Azul Acinzentado", hex: "#7B9BAB" },
+          { name: "Cinza Esverdeado", hex: "#8B9B8B" },
+          { name: "Verde Oliva", hex: "#8B8B5A" },
+          { name: "Sage Pálido", hex: "#B8C8B8" },
+        ],
+        "Cogumelos Rosados": [
+          { name: "Rosa Coral", hex: "#E8A8A8" },
+          { name: "Rosa Pálido", hex: "#F0D0D0" },
+          { name: "Malva", hex: "#C8A8B8" },
+          { name: "Lilás Suave", hex: "#D8C8D8" },
+          { name: "Rosa Acinzentado", hex: "#C8B8B8" },
+          { name: "Blush", hex: "#E8D8D8" },
+        ],
+      },
+      "Baroque": {
+        "Baroque Vermelhos": [
+          { name: "Vermelho Escuro", hex: "#8B2323" },
+          { name: "Vinho", hex: "#722F37" },
+          { name: "Carmim", hex: "#A52A2A" },
+          { name: "Vermelho Tijolo", hex: "#B22222" },
+          { name: "Terracota Vermelho", hex: "#C04000" },
+        ],
+        "Baroque Dourados": [
+          { name: "Ouro Velho", hex: "#B8860B" },
+          { name: "Dourado", hex: "#D4A76A" },
+          { name: "Mostarda Escuro", hex: "#9B7E2E" },
+          { name: "Creme Dourado", hex: "#F5DEB3" },
+          { name: "Champagne", hex: "#F7E7CE" },
+        ],
+        "Baroque Verdes": [
+          { name: "Verde Garrafa", hex: "#2F4F4F" },
+          { name: "Verde Escuro", hex: "#355E3B" },
+          { name: "Teal Escuro", hex: "#2E5A5A" },
+          { name: "Verde Oliva", hex: "#6B8E23" },
+          { name: "Sage Escuro", hex: "#5A6B4A" },
+        ],
+        "Baroque Neutros": [
+          { name: "Preto", hex: "#1A1A1A" },
+          { name: "Cinza Escuro", hex: "#4A4A4A" },
+          { name: "Marrom Escuro", hex: "#3D2B1F" },
+          { name: "Cinza Quente", hex: "#8B8378" },
+          { name: "Off-White", hex: "#FAF0E6" },
+        ],
+      },
+      "Boho Texturizado": {
+        "Texturas Quentes": [
+          { name: "Laranja Textura", hex: "#E07B4C" },
+          { name: "Mostarda Textura", hex: "#C4A035" },
+          { name: "Amarelo Textura", hex: "#E8C44D" },
+          { name: "Terracota Textura", hex: "#B85C38" },
+        ],
+        "Texturas Frias": [
+          { name: "Roxo Textura", hex: "#8B5A7B" },
+          { name: "Teal Textura", hex: "#4A8B8B" },
+          { name: "Verde Textura", hex: "#2D6B5A" },
+          { name: "Azul Petróleo", hex: "#2E5A5A" },
+        ],
+        "Texturas Neutras": [
+          { name: "Bege Textura", hex: "#C4A77D" },
+          { name: "Marrom Textura", hex: "#6B4423" },
+          { name: "Coral Textura", hex: "#E8A080" },
+          { name: "Lilás Textura", hex: "#7B5A7B" },
+        ],
+      },
+      "Exuberante": {
+        "Exuberante 1": [
+          { name: "Coral Vibrante", hex: "#EA5B10" },
+          { name: "Verde Sage", hex: "#91CA77" },
+          { name: "Amarelo Ocre", hex: "#FEDBA1" },
+        ],
+        "Exuberante 2": [
+          { name: "Verde Escuro", hex: "#4D8F8D" },
+          { name: "Amarelo Limão", hex: "#F6F09E" },
+          { name: "Azul Petróleo", hex: "#4A6670" },
+        ],
+        "Exuberante 3": [
+          { name: "Verde Floresta", hex: "#21A48F" },
+          { name: "Rosa Pálido", hex: "#FBD3C5" },
+          { name: "Verde Limão", hex: "#B1CC34" },
+        ],
+        "Exuberante 4": [
+          { name: "Magenta", hex: "#E00C58" },
+          { name: "Verde Menta", hex: "#E2EDD0" },
+          { name: "Turquesa", hex: "#21A48F" },
+        ],
+        "Exuberante 5": [
+          { name: "Coral", hex: "#EF7A62" },
+          { name: "Amarelo Vibrante", hex: "#E0C831" },
+          { name: "Verde Claro", hex: "#85C8AF" },
+        ],
+        "Exuberante 6": [
+          { name: "Turquesa Profundo", hex: "#219A8F" },
+          { name: "Laranja Caju", hex: "#F9AB4F" },
+          { name: "Amarelo Claro", hex: "#FAF4EC" },
+        ],
+      },
+      "Da Moda": {
+        "Da Moda 1": [
+          { name: "Terracota", hex: "#EC6159" },
+          { name: "Azul Cobalto", hex: "#14B9DC" },
+          { name: "Pêssego", hex: "#F39867" },
+        ],
+        "Da Moda 2": [
+          { name: "Azul Marinho", hex: "#1961AC" },
+          { name: "Rosa Claro", hex: "#FDEADF" },
+          { name: "Mostarda", hex: "#4B55A1" },
+        ],
+        "Da Moda 3": [
+          { name: "Amarelo Sol", hex: "#F2E73D" },
+          { name: "Azul Royal", hex: "#6AAADC" },
+          { name: "Rosa Pálido", hex: "#FDEADF" },
+        ],
+        "Da Moda 4": [
+          { name: "Laranja Queimado", hex: "#DB8749" },
+          { name: "Azul Céu", hex: "#ADD9E7" },
+          { name: "Bege", hex: "#E4D5BB" },
+        ],
+        "Da Moda 5": [
+          { name: "Terracota Escuro", hex: "#C67B5C" },
+          { name: "Azul Petróleo", hex: "#3A5A7C" },
+          { name: "Rosa Blush", hex: "#FBD3D7" },
+        ],
+        "Da Moda 6": [
+          { name: "Mostarda", hex: "#D4A84B" },
+          { name: "Azul Marinho", hex: "#1A2151" },
+          { name: "Rosa Antigo", hex: "#FDEADF" },
+        ],
+      },
+      "Refrescante": {
+        "Refrescante 1": [
+          { name: "Amarelo Limão", hex: "#F8F09B" },
+          { name: "Verde Sage", hex: "#C1E1D2" },
+          { name: "Lilás Suave", hex: "#D8C8E8" },
+        ],
+        "Refrescante 2": [
+          { name: "Amarelo Pastel", hex: "#F8F09B" },
+          { name: "Verde Menta", hex: "#91D0D5" },
+          { name: "Lilás", hex: "#D8C8E8" },
+        ],
+        "Refrescante 3": [
+          { name: "Verde Turquesa", hex: "#61B9B8" },
+          { name: "Laranja Coral", hex: "#EF7B51" },
+          { name: "Azul Claro", hex: "#C5E0E8" },
+        ],
+        "Refrescante 4": [
+          { name: "Azul Royal", hex: "#05A5D2" },
+          { name: "Rosa Coral", hex: "#F9C5C1" },
+          { name: "Amarelo", hex: "#F0E892" },
+        ],
+        "Refrescante 5": [
+          { name: "Verde Limão", hex: "#85C8AF" },
+          { name: "Rosa Pink", hex: "#DFC5CF" },
+          { name: "Roxo", hex: "#624F8F" },
+        ],
+        "Refrescante 6": [
+          { name: "Turquesa", hex: "#52C8AF" },
+          { name: "Amarelo Vibrante", hex: "#DFC731" },
+          { name: "Rosa Pálido", hex: "#FAD2DB" },
+        ],
+      },
+      "Retrô": {
+        "Retrô 1": [
+          { name: "Rosa Antigo", hex: "#F6B7BC" },
+          { name: "Bordô", hex: "#931A1E" },
+          { name: "Cinza Rosado", hex: "#CDE4F1" },
+        ],
+        "Retrô 2": [
+          { name: "Mostarda", hex: "#E9A431" },
+          { name: "Azul Marinho", hex: "#57292D" },
+          { name: "Rosa Pálido", hex: "#FBF5E6" },
+        ],
+        "Retrô 3": [
+          { name: "Coral", hex: "#EF7748" },
+          { name: "Terracota", hex: "#C1E1D2" },
+          { name: "Creme", hex: "#CDE4F1" },
+        ],
+        "Retrô 4": [
+          { name: "Verde Oliva", hex: "#BFDC82" },
+          { name: "Azul Petróleo", hex: "#1E3C5F" },
+          { name: "Amarelo", hex: "#D4A84B" },
+        ],
+        "Retrô 5": [
+          { name: "Terracota", hex: "#B2CED2" },
+          { name: "Verde Musgo", hex: "#6B8E5A" },
+          { name: "Creme", hex: "#FACEB4" },
+        ],
+        "Retrô 6": [
+          { name: "Rosa Antigo", hex: "#F9CECD" },
+          { name: "Terracota Escuro", hex: "#7C1634" },
+          { name: "Bege Rosado", hex: "#EAE4D3" },
+        ],
+      },
+      "Lúdica": {
+        "Lúdica 1": [
+          { name: "Coral Vibrante", hex: "#EB5B44" },
+          { name: "Rosa Claro", hex: "#FAD2DB" },
+          { name: "Turquesa", hex: "#64C7F3" },
+        ],
+        "Lúdica 2": [
+          { name: "Azul Vibrante", hex: "#64C7F3" },
+          { name: "Amarelo", hex: "#F2E73D" },
+          { name: "Magenta", hex: "#9B4093" },
+        ],
+        "Lúdica 3": [
+          { name: "Verde Limão", hex: "#CCE7E7" },
+          { name: "Amarelo Sol", hex: "#E1EB8F" },
+          { name: "Rosa Pink", hex: "#F4AFB4" },
+        ],
+        "Lúdica 4": [
+          { name: "Azul Royal", hex: "#3940B7" },
+          { name: "Amarelo Vibrante", hex: "#F2E73D" },
+          { name: "Rosa", hex: "#F5A0B4" },
+        ],
+        "Lúdica 5": [
+          { name: "Verde Turquesa", hex: "#21A48F" },
+          { name: "Laranja", hex: "#F9AB4F" },
+          { name: "Magenta", hex: "#CF388D" },
+        ],
+        "Lúdica 6": [
+          { name: "Amarelo Limão", hex: "#F0E892" },
+          { name: "Verde Menta", hex: "#91D0D5" },
+          { name: "Roxo", hex: "#624F8F" },
+        ],
+      },
+      "Color Combos": {
+        "Sunset Bliss": [
+          { name: "Peach Sorbet", hex: "#FECACA" },
+          { name: "Sunset Fizz", hex: "#F87171" },
+          { name: "Rosy Glow", hex: "#FB7185" },
+        ],
+        "Sea Escape": [
+          { name: "Aqua Wave", hex: "#67E8F9" },
+          { name: "Deep Sea", hex: "#0891B2" },
+          { name: "Arctic Breeze", hex: "#A5F3FC" },
+        ],
+        "Forest Gold": [
+          { name: "Dark Moss", hex: "#365314" },
+          { name: "Tropical Jade", hex: "#15803D" },
+          { name: "Golden Fern", hex: "#EAB308" },
+        ],
+        "Soft Harmony": [
+          { name: "Peach Sunset", hex: "#FED7AA" },
+          { name: "Rosy Fizz", hex: "#FECDD3" },
+          { name: "Rosy Glow", hex: "#FDA4AF" },
+        ],
+        "Vintage Flame": [
+          { name: "Fiery Crimson", hex: "#DC2626" },
+          { name: "Burnt Gold", hex: "#D97706" },
+          { name: "Retro Ice", hex: "#BAE6FD" },
+        ],
+        "Midnight Luxe": [
+          { name: "Deep Sapphire", hex: "#1E3A5F" },
+          { name: "Storm Blue", hex: "#475569" },
+          { name: "Frosted Sky", hex: "#94A3B8" },
+        ],
+        "Winter Chill": [
+          { name: "Polar Night", hex: "#1E293B" },
+          { name: "Arctic Sunrise", hex: "#7DD3FC" },
+          { name: "Ice Mist", hex: "#E0F2FE" },
+        ],
+        "Pastel Pop": [
+          { name: "Bubblegum Pink", hex: "#F9A8D4" },
+          { name: "Peach Sherbet", hex: "#FED7AA" },
+          { name: "Sunshine Puff", hex: "#FEF08A" },
+        ],
+        "Tropical Punch": [
+          { name: "Lava Red", hex: "#EF4444" },
+          { name: "Sunset Fire", hex: "#F97316" },
+          { name: "Lime Zest", hex: "#84CC16" },
+        ],
+        "Antique Glow": [
+          { name: "Dusty Violet", hex: "#A78BFA" },
+          { name: "Amber Dusk", hex: "#F59E0B" },
+          { name: "Creamy Lace", hex: "#FEF3C7" },
+        ],
+        "City Lights": [
+          { name: "Midnight Violet", hex: "#4C1D95" },
+          { name: "Orchid Sky", hex: "#C084FC" },
+          { name: "Amber Spark", hex: "#FBBF24" },
+        ],
+        "Autumn Spice": [
+          { name: "Spiced Maple", hex: "#92400E" },
+          { name: "Pumpkin Glow", hex: "#EA580C" },
+          { name: "Nutmeg Cream", hex: "#FED7AA" },
+        ],
+        "Beachside Calm": [
+          { name: "Lagoon Blue", hex: "#0EA5E9" },
+          { name: "Summer Haze", hex: "#FDE68A" },
+          { name: "Icy Pearl", hex: "#F0FDFA" },
+        ],
+        "Citrus Blaze": [
+          { name: "Energy Red", hex: "#DC2626" },
+          { name: "Citrus Glow", hex: "#FACC15" },
+          { name: "Lime Burst", hex: "#A3E635" },
+        ],
+        "Petal Romance": [
+          { name: "Rose Cream", hex: "#FECDD3" },
+          { name: "Blush Mist", hex: "#FDF2F8" },
+          { name: "Smoky Heather", hex: "#9CA3AF" },
+        ],
+      },
+      "Borboletas": {
+        "Borboleta Lavanda": [
+          { name: "Lavanda", hex: "#8D9FCE" },
+          { name: "Pêssego", hex: "#FBEAA4" },
+          { name: "Coral", hex: "#B95869" },
+        ],
+        "Borboleta Verde": [
+          { name: "Verde Sage", hex: "#96B898" },
+          { name: "Creme", hex: "#FFF7C2" },
+          { name: "Vermelho", hex: "#D35323" },
+        ],
+        "Borboleta Rosa": [
+          { name: "Rosa", hex: "#D5658B" },
+          { name: "Rosa Claro", hex: "#FCDCC7" },
+          { name: "Turquesa", hex: "#029091" },
+        ],
+        "Borboleta Oliva": [
+          { name: "Oliva", hex: "#AAA36D" },
+          { name: "Creme", hex: "#FFFBE4" },
+          { name: "Marrom", hex: "#976434" },
+        ],
+      },
+      "Estilos": {
+        "Marie Antoinette": [
+          { name: "Rosa Pétala", hex: "#F4C4C4" },
+          { name: "Rosa Antigo", hex: "#D4848B" },
+          { name: "Vinho Rosé", hex: "#9B4A5A" },
+          { name: "Sage", hex: "#8BA888" },
+          { name: "Azul Cinza", hex: "#7B8B9B" },
+          { name: "Dourado", hex: "#B8963E" },
+          { name: "Lavanda", hex: "#C4A4D4" },
+          { name: "Creme", hex: "#FAF0E6" },
+        ],
+        "Ghibli": [
+          { name: "Verde Totoro", hex: "#5B8B5A" },
+          { name: "Verde Floresta", hex: "#2D5A3D" },
+          { name: "Rosa Chihiro", hex: "#E88B9B" },
+          { name: "Coral Ponyo", hex: "#E8785B" },
+          { name: "Amarelo Calcifer", hex: "#E8A832" },
+          { name: "Azul Céu", hex: "#4A90A4" },
+          { name: "Turquesa", hex: "#3DB8A4" },
+          { name: "Marrom Terra", hex: "#6B4423" },
+        ],
+        "Vintage Florals": [
+          { name: "Rosa Vintage", hex: "#D4848B" },
+          { name: "Coral Suave", hex: "#E8A894" },
+          { name: "Pêssego", hex: "#F8C8A8" },
+          { name: "Lavanda", hex: "#B8A8C8" },
+          { name: "Verde Oliva", hex: "#8B9B6B" },
+          { name: "Sage", hex: "#A8B89B" },
+          { name: "Creme", hex: "#F5E6D3" },
+          { name: "Marrom Suave", hex: "#A89080" },
+        ],
+        "Kapitza Geométrico": [
+          { name: "Coral Kapitza", hex: "#E8785B" },
+          { name: "Amarelo Vibrante", hex: "#F4C430" },
+          { name: "Turquesa", hex: "#2FBFB3" },
+          { name: "Roxo", hex: "#7B4B9B" },
+          { name: "Verde", hex: "#4CA64C" },
+          { name: "Rosa", hex: "#E88B9B" },
+          { name: "Azul", hex: "#4A90A4" },
+          { name: "Laranja", hex: "#F27935" },
+        ],
+      },
+      "FAVAS Infantil": {
+        "Arco-Íris": [
+          { name: "Vermelho", hex: "#E84B3C" },
+          { name: "Laranja", hex: "#E87B35" },
+          { name: "Amarelo", hex: "#F4C430" },
+          { name: "Verde", hex: "#4CA64C" },
+          { name: "Azul", hex: "#3B5998" },
+          { name: "Roxo", hex: "#7B4B9B" },
+          { name: "Rosa", hex: "#E88B9B" },
+        ],
+        "Mundo Subaquático": [
+          { name: "Azul Profundo", hex: "#1A4A6E" },
+          { name: "Turquesa", hex: "#3DB8A4" },
+          { name: "Verde Água", hex: "#7DD3C0" },
+          { name: "Coral Mar", hex: "#FF8C6B" },
+          { name: "Amarelo Sol", hex: "#FFD93D" },
+          { name: "Roxo Fundo", hex: "#5C4B8A" },
+        ],
+        "Passarinhos": [
+          { name: "Azul Céu", hex: "#87CEEB" },
+          { name: "Amarelo Canário", hex: "#FFE66D" },
+          { name: "Verde Folha", hex: "#7CB342" },
+          { name: "Coral", hex: "#FF8A80" },
+          { name: "Marrom Ninho", hex: "#8D6E63" },
+          { name: "Creme", hex: "#FFF8E1" },
+        ],
+        "Frutinhas": [
+          { name: "Vermelho Morango", hex: "#E84B5A" },
+          { name: "Laranja Tangerina", hex: "#FF9A4D" },
+          { name: "Amarelo Banana", hex: "#FFE135" },
+          { name: "Verde Limão", hex: "#B4D44E" },
+          { name: "Roxo Uva", hex: "#8B5A9B" },
+          { name: "Rosa Chiclete", hex: "#FF88B8" },
+        ],
+      },
+      "Tropicais": {
+        "Coco": [
+          { name: "Marrom Casca", hex: "#5C4033" },
+          { name: "Creme Polpa", hex: "#FFF8DC" },
+          { name: "Verde Folha", hex: "#4A7C59" },
+          { name: "Bege Fibra", hex: "#D4B896" },
+        ],
+        "Tucanos": [
+          { name: "Preto", hex: "#1A1A1A" },
+          { name: "Laranja Bico", hex: "#FF6B35" },
+          { name: "Amarelo", hex: "#FFD700" },
+          { name: "Verde", hex: "#228B22" },
+          { name: "Azul", hex: "#4169E1" },
+          { name: "Vermelho", hex: "#DC143C" },
+        ],
+        "Papagaios": [
+          { name: "Verde Brilhante", hex: "#32CD32" },
+          { name: "Vermelho", hex: "#E84B3C" },
+          { name: "Amarelo", hex: "#FFD700" },
+          { name: "Azul", hex: "#1E90FF" },
+          { name: "Laranja", hex: "#FF8C00" },
+        ],
+        "Mar e Praia": [
+          { name: "Azul Mar", hex: "#006994" },
+          { name: "Turquesa", hex: "#40E0D0" },
+          { name: "Areia", hex: "#F4E4BA" },
+          { name: "Coral", hex: "#FF7F50" },
+          { name: "Branco Espuma", hex: "#FFFAFA" },
+        ],
+        "Ananás": [
+          { name: "Amarelo", hex: "#FFD700" },
+          { name: "Verde Coroa", hex: "#228B22" },
+          { name: "Laranja Polpa", hex: "#FFA500" },
+          { name: "Marrom", hex: "#8B4513" },
+        ],
+      },
+    };
+
+    function App() {
+      const [selectedCategory, setSelectedCategory] = useState("LUNE Principal");
+      const [selectedPalette, setSelectedPalette] = useState(Object.keys(categories["LUNE Principal"])[0]);
+      const [copied, setCopied] = useState(null);
+      const [custom, setCustom] = useState([]);
+      const [tab, setTab] = useState("paletas");
+      const [searchTerm, setSearchTerm] = useState("");
+
+      const handleCategoryChange = (cat) => {
+        setSelectedCategory(cat);
+        setSelectedPalette(Object.keys(categories[cat])[0]);
+      };
+
+      const colors = tab === "custom" 
+        ? custom 
+        : (categories[selectedCategory]?.[selectedPalette] || []);
+
+      const copy = (hex, name) => {
+        navigator.clipboard.writeText(hex);
+        setCopied(name);
+        setTimeout(() => setCopied(null), 1500);
+      };
+
+      const copyAll = () => {
+        const hexList = colors.map(c => c.hex).join(", ");
+        navigator.clipboard.writeText(hexList);
+        setCopied("all");
+        setTimeout(() => setCopied(null), 1500);
+      };
+
+      const addCustom = (color) => {
+        if (!custom.find(c => c.hex === color.hex)) {
+          setCustom([...custom, color]);
+        }
+      };
+
+      const removeCustom = (hex) => {
+        setCustom(custom.filter(c => c.hex !== hex));
+      };
+
+      const clearCustom = () => setCustom([]);
+
+      // Search functionality
+      const allColors = Object.values(categories).flatMap(cat => 
+        Object.values(cat).flatMap(pal => pal)
+      );
+      
+      const filteredColors = searchTerm.length > 1 
+        ? allColors.filter(c => 
+            c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            c.hex.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+        : [];
+
+      // Check if current category has gradient palettes (2 colors)
+      const isGradientPalette = colors.length === 2;
+
+      return (
+        <div className="min-h-screen bg-stone-100 p-4 md:p-8">
+          <div className="max-w-4xl mx-auto">
+            {/* Header */}
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-light text-stone-800 tracking-wider">LUNE</h1>
+              <p className="text-stone-500 text-sm mt-1">Paleta de Cores</p>
+            </div>
+
+            {/* Search */}
+            <div className="mb-6">
+              <input
+                type="text"
+                placeholder="Buscar cor por nome ou hex..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border-0 bg-white shadow-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
+              />
+              {filteredColors.length > 0 && (
+                <div className="mt-2 p-4 bg-white rounded-xl shadow-sm">
+                  <p className="text-xs text-stone-500 mb-2">{filteredColors.length} cores encontradas</p>
+                  <div className="grid grid-cols-4 md:grid-cols-6 gap-2">
+                    {filteredColors.slice(0, 24).map((c, i) => (
+                      <div
+                        key={i}
+                        className="relative group cursor-pointer"
+                        onClick={() => copy(c.hex, c.name)}
+                      >
+                        <div
+                          className="w-full aspect-square rounded-lg shadow-sm"
+                          style={{ backgroundColor: c.hex }}
+                        />
+                        <p className="text-xs text-center mt-1 truncate">{c.name}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Tabs */}
+            <div className="flex gap-2 mb-6">
+              <button
+                onClick={() => setTab("paletas")}
+                className={`flex-1 py-3 rounded-xl font-medium transition-colors ${
+                  tab === "paletas" ? "bg-stone-800 text-white" : "bg-white text-stone-600 hover:bg-stone-100"
+                }`}
+              >
+                Paletas
+              </button>
+              <button
+                onClick={() => setTab("custom")}
+                className={`flex-1 py-3 rounded-xl font-medium transition-colors ${
+                  tab === "custom" ? "bg-stone-800 text-white" : "bg-white text-stone-600 hover:bg-stone-100"
+                }`}
+              >
+                Minha Seleção ({custom.length})
+              </button>
+            </div>
+
+            {tab === "paletas" && (
+              <>
+                {/* Category Selector */}
+                <div className="mb-4">
+                  <p className="text-xs text-stone-500 mb-2 uppercase tracking-wider">Categoria</p>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.keys(categories).map(cat => (
+                      <button
+                        key={cat}
+                        onClick={() => handleCategoryChange(cat)}
+                        className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                          selectedCategory === cat
+                            ? "bg-stone-800 text-white"
+                            : "bg-white text-stone-600 hover:bg-stone-100"
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Palette Selector */}
+                <div className="mb-6">
+                  <p className="text-xs text-stone-500 mb-2 uppercase tracking-wider">Paleta</p>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.keys(categories[selectedCategory] || {}).map(pal => (
+                      <button
+                        key={pal}
+                        onClick={() => setSelectedPalette(pal)}
+                        className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                          selectedPalette === pal
+                            ? "bg-amber-600 text-white"
+                            : "bg-white text-stone-600 hover:bg-stone-100"
+                        }`}
+                      >
+                        {pal}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+
+            {tab === "custom" && custom.length > 0 && (
+              <div className="mb-4 flex justify-end">
+                <button
+                  onClick={clearCustom}
+                  className="px-4 py-2 text-sm text-red-600 hover:text-red-700"
+                >
+                  Limpar seleção
+                </button>
+              </div>
+            )}
+
+            {/* Gradient Preview for 2-color palettes */}
+            {isGradientPalette && tab === "paletas" && (
+              <div className="mb-6 bg-white rounded-xl p-4 shadow-sm">
+                <p className="text-xs text-stone-500 mb-2">Preview degradê:</p>
+                <div 
+                  className="h-16 rounded-xl shadow-sm"
+                  style={{ 
+                    background: `linear-gradient(to right, ${colors[0]?.hex}, ${colors[1]?.hex})` 
+                  }}
+                />
+              </div>
+            )}
+
+            {/* Colors Grid */}
+            <div className={`grid ${isGradientPalette ? 'grid-cols-2' : 'grid-cols-3 md:grid-cols-4 lg:grid-cols-6'} gap-4 mb-6`}>
+              {colors.map((color, idx) => (
+                <div key={color.hex + idx} className="relative group">
+                  <div
+                    className={`${isGradientPalette ? 'aspect-[3/4]' : 'aspect-square'} rounded-2xl shadow-md cursor-pointer transition-transform hover:scale-105 relative overflow-hidden`}
+                    style={{ backgroundColor: color.hex }}
+                    onClick={() => copy(color.hex, color.name)}
+                  >
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                      <span className="opacity-0 group-hover:opacity-100 text-white text-xs font-medium bg-black/50 px-2 py-1 rounded">
+                        {copied === color.name ? "✓" : "Copiar"}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="mt-2 text-xs text-stone-600 text-center truncate">{color.name}</p>
+                  <p className="text-xs text-stone-400 text-center font-mono">{color.hex}</p>
+                  {tab === "paletas" && (
+                    <button
+                      onClick={() => addCustom(color)}
+                      className="absolute -top-2 -right-2 w-6 h-6 bg-amber-500 text-white rounded-full text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-amber-600 flex items-center justify-center"
+                    >
+                      +
+                    </button>
+                  )}
+                  {tab === "custom" && (
+                    <button
+                      onClick={() => removeCustom(color.hex)}
+                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-red-600 flex items-center justify-center"
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Empty state for custom */}
+            {tab === "custom" && custom.length === 0 && (
+              <div className="text-center py-12 text-stone-400 bg-white rounded-xl">
+                <p className="mb-2 text-lg">Nenhuma cor selecionada</p>
+                <p className="text-sm">Vá em "Paletas" e clique no + para criar sua paleta personalizada</p>
+              </div>
+            )}
+
+            {/* Preview and Copy */}
+            {colors.length > 0 && (
+              <div className="bg-white rounded-xl p-4 shadow-sm">
+                <p className="text-xs text-stone-500 mb-2">Preview da paleta:</p>
+                <div className="flex rounded-xl overflow-hidden h-12 mb-4 shadow-sm">
+                  {colors.map((c, i) => (
+                    <div 
+                      key={c.hex + i} 
+                      className="flex-1 relative group cursor-pointer" 
+                      style={{ backgroundColor: c.hex }}
+                      onClick={() => copy(c.hex, c.name)}
+                      title={`${c.name}: ${c.hex}`}
+                    />
+                  ))}
+                </div>
+                <button 
+                  onClick={copyAll} 
+                  className="w-full py-3 bg-stone-800 text-white rounded-xl font-medium hover:bg-stone-700 transition-colors"
+                >
+                  {copied === "all" ? "✓ Copiado!" : "Copiar todos os hex"}
+                </button>
+              </div>
+            )}
+
+            {/* Stats */}
+            <div className="mt-8 text-center text-xs text-stone-400">
+              <p>
+                {Object.keys(categories).length} categorias • 
+                {Object.values(categories).reduce((acc, cat) => acc + Object.keys(cat).length, 0)} paletas •
+                {Object.values(categories).reduce((acc, cat) => 
+                  acc + Object.values(cat).reduce((a, p) => a + p.length, 0), 0
+                )} cores
+              </p>
+              <p className="mt-2">LUNE • Ferramenta de Cores v5</p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
