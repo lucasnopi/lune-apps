@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LUNE Apps</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+      color: #fff;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .logo {
+      font-size: 48px;
+      font-weight: 700;
+      letter-spacing: 12px;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #10b981, #34d399);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: #666;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+    }
+
+    .apps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .app-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 28px;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.3s ease;
+      display: block;
+    }
+
+    .app-card:hover {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(16,185,129,0.5);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    .app-icon {
+      font-size: 40px;
+      margin-bottom: 16px;
+    }
+
+    .app-name {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+
+    .app-version {
+      display: inline-block;
+      font-size: 11px;
+      color: #10b981;
+      background: rgba(16,185,129,0.15);
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+    }
+
+    .app-desc {
+      font-size: 14px;
+      color: #888;
+      line-height: 1.5;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 60px;
+      padding-top: 30px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .footer p {
+      font-size: 12px;
+      color: #555;
+    }
+
+    .footer .brand {
+      color: #10b981;
+      font-weight: 600;
+    }
+
+    @media (max-width: 600px) {
+      .logo {
+        font-size: 36px;
+        letter-spacing: 8px;
+      }
+      
+      .apps-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1 class="logo">LUNE</h1>
+      <p class="subtitle">Ferramentas de Design</p>
+    </header>
+
+    <div class="apps-grid">
+      <a href="LUNE_Studio_v4.html" class="app-card">
+        <div class="app-icon">🔍</div>
+        <h2 class="app-name">LUNE Studio</h2>
+        <span class="app-version">v4.0</span>
+        <p class="app-desc">Análise técnica completa de referências visuais com IA</p>
+      </a>
+
+      <a href="LUNE_Olhar_v3.html" class="app-card">
+        <div class="app-icon">👁️</div>
+        <h2 class="app-name">LUNE Olhar</h2>
+        <span class="app-version">v3.0</span>
+        <p class="app-desc">Desconstrução técnica profunda de técnicas artísticas</p>
+      </a>
+
+      <a href="LUNE_Forma_v1.html" class="app-card">
+        <div class="app-icon">👗</div>
+        <h2 class="app-name">LUNE Forma</h2>
+        <span class="app-version">v1.0</span>
+        <p class="app-desc">Desenvolver peças comerciais com especificações completas</p>
+      </a>
+
+      <a href="LUNE_Place_v2.html" class="app-card">
+        <div class="app-icon">🎨</div>
+        <h2 class="app-name">LUNE Placê</h2>
+        <span class="app-version">v2.0</span>
+        <p class="app-desc">Criar estampas posicionadas com composições únicas</p>
+      </a>
+
+      <a href="LUNE_Localizado_v4.html" class="app-card">
+        <div class="app-icon">🌺</div>
+        <h2 class="app-name">LUNE Localizado</h2>
+        <span class="app-version">v4.0</span>
+        <p class="app-desc">Gerar estampas localizadas com elementos nordestinos</p>
+      </a>
+
+      <a href="LUNE_Gerador_Prompts_v3.html" class="app-card">
+        <div class="app-icon">✨</div>
+        <h2 class="app-name">LUNE Gerador</h2>
+        <span class="app-version">v3.0</span>
+        <p class="app-desc">Montar prompts Midjourney com tradução automática</p>
+      </a>
+
+      <a href="LUNE_Paleta_Cores_v5.html" class="app-card">
+        <div class="app-icon">🎭</div>
+        <h2 class="app-name">LUNE Paleta</h2>
+        <span class="app-version">v5.0</span>
+        <p class="app-desc">Biblioteca completa de paletas de cores para estampas</p>
+      </a>
+    </div>
+
+    <footer class="footer">
+      <p><span class="brand">LUNE</span> • Arte Têxtil Nordestina Contemporânea</p>
+    </footer>
+  </div>
+</body>
+</html>
