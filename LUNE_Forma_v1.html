@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LUNE Forma v1 - Desenvolvimento de Peças</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #0a0f14; color: #f0f4f8; min-height: 100vh; }
+    .font-serif { font-family: 'Playfair Display', serif; }
+    
+    /* Header */
+    header { background: #0a0f14; border-bottom: 1px solid #1c252f; padding: 20px 0; position: sticky; top: 0; z-index: 100; }
+    .header-content { max-width: 900px; margin: 0 auto; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; }
+    .logo-section { display: flex; align-items: center; gap: 12px; }
+    .logo-icon { width: 44px; height: 44px; background: linear-gradient(135deg, #e879f9, #a855f7); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+    .logo-text h1 { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600; }
+    .logo-text h1 span { color: #e879f9; }
+    .logo-text p { font-size: 10px; color: #556677; letter-spacing: 2px; text-transform: uppercase; }
+    .version-badge { background: #1c252f; padding: 6px 12px; border-radius: 20px; font-size: 11px; color: #8899a6; }
+
+    /* Main */
+    main { max-width: 900px; margin: 0 auto; padding: 30px 20px 100px; }
+    
+    /* Sections */
+    .section { background: #161d26; border: 1px solid #2a3540; border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+    .section-title { font-family: 'Playfair Display', serif; font-size: 18px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+    .section-title span { font-size: 20px; }
+    
+    /* Form Groups */
+    .form-group { margin-bottom: 20px; }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-label { display: block; font-size: 11px; font-weight: 600; color: #8899a6; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
+    
+    /* Select */
+    select { width: 100%; background: #111820; border: 1px solid #2a3540; border-radius: 10px; padding: 14px 16px; color: #f0f4f8; font-size: 14px; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238899a6' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; }
+    select:focus { outline: none; border-color: #e879f9; }
+    
+    /* Option Buttons */
+    .options-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
+    .options-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .options-grid-4 { grid-template-columns: repeat(4, 1fr); }
+    .opt-btn { background: #111820; border: 1px solid #2a3540; border-radius: 10px; padding: 12px 8px; color: #c0d4e6; font-size: 12px; cursor: pointer; transition: all 0.2s; text-align: center; }
+    .opt-btn:hover { border-color: #e879f9; background: rgba(232, 121, 249, 0.1); }
+    .opt-btn.selected { border-color: #e879f9; background: rgba(232, 121, 249, 0.2); color: #f0f4f8; }
+    
+    /* Textarea */
+    textarea { width: 100%; background: #111820; border: 1px solid #2a3540; border-radius: 10px; padding: 14px 16px; color: #f0f4f8; font-size: 14px; resize: vertical; min-height: 80px; }
+    textarea:focus { outline: none; border-color: #e879f9; }
+    textarea::placeholder { color: #556677; }
+    
+    /* Generate Button */
+    .generate-btn { width: 100%; background: linear-gradient(135deg, #e879f9, #a855f7); border: none; border-radius: 12px; padding: 18px; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
+    .generate-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(232, 121, 249, 0.3); }
+    
+    /* Output */
+    .output-section { display: none; }
+    .output-section.visible { display: block; }
+    .output-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .output-title { font-size: 12px; font-weight: 600; color: #e879f9; letter-spacing: 1px; text-transform: uppercase; }
+    .copy-btn { background: rgba(232, 121, 249, 0.2); border: 1px solid rgba(232, 121, 249, 0.4); border-radius: 8px; padding: 8px 16px; color: #e879f9; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .copy-btn:hover { background: #e879f9; color: #0a0f14; }
+    .prompt-output { background: #111820; border: 1px solid #2a3540; border-radius: 12px; padding: 20px; font-size: 13px; line-height: 1.8; color: #c0d4e6; white-space: pre-wrap; max-height: 500px; overflow-y: auto; }
+    .prompt-output::-webkit-scrollbar { width: 6px; }
+    .prompt-output::-webkit-scrollbar-track { background: #1c252f; }
+    .prompt-output::-webkit-scrollbar-thumb { background: #2a3540; border-radius: 3px; }
+    
+    /* Divider */
+    .divider { height: 1px; background: #2a3540; margin: 20px 0; }
+    
+    /* Toast */
+    .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #e879f9; color: #0a0f14; padding: 14px 28px; border-radius: 30px; font-size: 13px; font-weight: 600; opacity: 0; transition: all 0.3s ease; z-index: 1000; }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    
+    /* Upload Zone */
+    .upload-zone { border: 2px dashed #2a3540; border-radius: 16px; padding: 40px 20px; text-align: center; cursor: pointer; transition: all 0.3s; background: rgba(232, 121, 249, 0.03); position: relative; }
+    .upload-zone:hover { border-color: #e879f9; background: rgba(232, 121, 249, 0.08); }
+    .upload-zone.dragover { border-color: #e879f9; background: rgba(232, 121, 249, 0.12); transform: scale(1.01); }
+    .upload-zone.has-image { padding: 16px; }
+    .upload-icon { font-size: 48px; margin-bottom: 12px; }
+    .upload-text { font-size: 15px; color: #c0d4e6; margin-bottom: 6px; }
+    .upload-hint { font-size: 12px; color: #556677; }
+    .preview-image { max-width: 100%; max-height: 350px; border-radius: 12px; object-fit: contain; }
+    .remove-btn { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.7); border: none; border-radius: 50%; width: 32px; height: 32px; color: #fff; font-size: 16px; cursor: pointer; transition: all 0.2s; }
+    .remove-btn:hover { background: #e74c3c; }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .options-grid { grid-template-columns: repeat(2, 1fr); }
+      .options-grid-3, .options-grid-4 { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <div class="logo-section">
+        <div class="logo-icon">👗</div>
+        <div class="logo-text">
+          <h1>LUNE <span>Forma</span></h1>
+          <p>Desenvolvimento de Peças</p>
+        </div>
+      </div>
+      <div class="version-badge">v1.0</div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Upload de Referência -->
+    <div class="section">
+      <h2 class="section-title"><span>📸</span> Referência Visual</h2>
+      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+        <div id="uploadContent">
+          <div class="upload-icon">🖼️</div>
+          <p class="upload-text">Arraste uma imagem ou clique para selecionar</p>
+          <p class="upload-hint">A peça será desenvolvida inspirada nesta referência</p>
+        </div>
+        <div id="previewContainer" style="display: none;">
+          <img id="previewImage" class="preview-image" />
+          <button class="remove-btn" onclick="event.stopPropagation(); removerImagem()">✕</button>
+        </div>
+      </div>
+      <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)" />
+    </div>
+
+    <!-- Tipo de Peça -->
+    <div class="section">
+      <h2 class="section-title"><span>👗</span> Tipo de Peça</h2>
+      <div class="form-group">
+        <select id="tipoPeca">
+          <option value="vestido midi">Vestido Midi</option>
+          <option value="vestido longo">Vestido Longo</option>
+          <option value="vestido curto">Vestido Curto</option>
+          <option value="blusa">Blusa</option>
+          <option value="cropped">Cropped</option>
+          <option value="camisa">Camisa</option>
+          <option value="regata">Regata</option>
+          <option value="saia midi">Saia Midi</option>
+          <option value="saia longa">Saia Longa</option>
+          <option value="saia curta">Saia Curta</option>
+          <option value="short">Short</option>
+          <option value="bermuda">Bermuda</option>
+          <option value="calça pantalona">Calça Pantalona</option>
+          <option value="calça fluida">Calça Fluida</option>
+          <option value="macacão longo">Macacão Longo</option>
+          <option value="macacão curto">Macacão Curto</option>
+          <option value="macaquinho">Macaquinho</option>
+          <option value="kimono">Kimono</option>
+          <option value="kaftan">Kaftan</option>
+          <option value="saída de praia">Saída de Praia</option>
+          <option value="conjunto duas peças">Conjunto Duas Peças</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Modelagem -->
+    <div class="section">
+      <h2 class="section-title"><span>✂️</span> Modelagem</h2>
+      
+      <div class="form-group">
+        <label class="form-label">Decote</label>
+        <div class="options-grid options-grid-4" id="decoteOptions">
+          <button class="opt-btn" data-value="V">V</button>
+          <button class="opt-btn" data-value="V profundo">V Profundo</button>
+          <button class="opt-btn selected" data-value="redondo">Redondo</button>
+          <button class="opt-btn" data-value="quadrado">Quadrado</button>
+          <button class="opt-btn" data-value="canoa">Canoa</button>
+          <button class="opt-btn" data-value="tomara que caia">Tomara que Caia</button>
+          <button class="opt-btn" data-value="ombro a ombro">Ombro a Ombro</button>
+          <button class="opt-btn" data-value="um ombro só">Um Ombro Só</button>
+          <button class="opt-btn" data-value="halter">Halter</button>
+          <button class="opt-btn" data-value="frente única">Frente Única</button>
+          <button class="opt-btn" data-value="gola alta">Gola Alta</button>
+          <button class="opt-btn" data-value="decote nas costas">Decote Costas</button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      
+      <div class="form-group">
+        <label class="form-label">Manga</label>
+        <div class="options-grid options-grid-4" id="mangaOptions">
+          <button class="opt-btn selected" data-value="sem manga">Sem Manga</button>
+          <button class="opt-btn" data-value="alça fina">Alça Fina</button>
+          <button class="opt-btn" data-value="alça larga">Alça Larga</button>
+          <button class="opt-btn" data-value="alça dupla">Alça Dupla</button>
+          <button class="opt-btn" data-value="curta">Curta</button>
+          <button class="opt-btn" data-value="bufante curta">Bufante Curta</button>
+          <button class="opt-btn" data-value="bufante longa">Bufante Longa</button>
+          <button class="opt-btn" data-value="3/4">3/4</button>
+          <button class="opt-btn" data-value="longa">Longa</button>
+          <button class="opt-btn" data-value="sino">Sino</button>
+          <button class="opt-btn" data-value="morcego">Morcego</button>
+          <button class="opt-btn" data-value="raglan">Raglan</button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      
+      <div class="form-group">
+        <label class="form-label">Silhueta</label>
+        <div class="options-grid options-grid-3" id="silhuetaOptions">
+          <button class="opt-btn selected" data-value="fluida">Fluida</button>
+          <button class="opt-btn" data-value="ajustada">Ajustada</button>
+          <button class="opt-btn" data-value="ampla">Ampla</button>
+          <button class="opt-btn" data-value="evasê">Evasê</button>
+          <button class="opt-btn" data-value="trapézio">Trapézio</button>
+          <button class="opt-btn" data-value="sereia">Sereia</button>
+          <button class="opt-btn" data-value="reta">Reta</button>
+          <button class="opt-btn" data-value="godê">Godê</button>
+          <button class="opt-btn" data-value="envelope">Envelope</button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      
+      <div class="form-group">
+        <label class="form-label">Cintura</label>
+        <div class="options-grid options-grid-3" id="cinturaOptions">
+          <button class="opt-btn" data-value="alta">Alta</button>
+          <button class="opt-btn selected" data-value="natural">Natural</button>
+          <button class="opt-btn" data-value="baixa">Baixa</button>
+          <button class="opt-btn" data-value="marcada com cós">Marcada c/ Cós</button>
+          <button class="opt-btn" data-value="elástico embutido">Elástico Embutido</button>
+          <button class="opt-btn" data-value="amarração">Amarração</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detalhes -->
+    <div class="section">
+      <h2 class="section-title"><span>✨</span> Detalhes</h2>
+      
+      <div class="form-group">
+        <label class="form-label">Detalhes Construtivos (selecione quantos quiser)</label>
+        <div class="options-grid options-grid-3" id="detalhesOptions">
+          <button class="opt-btn" data-value="fenda lateral">Fenda Lateral</button>
+          <button class="opt-btn" data-value="fenda frontal">Fenda Frontal</button>
+          <button class="opt-btn" data-value="fenda traseira">Fenda Traseira</button>
+          <button class="opt-btn" data-value="babados">Babados</button>
+          <button class="opt-btn" data-value="franzido">Franzido</button>
+          <button class="opt-btn" data-value="drapeado">Drapeado</button>
+          <button class="opt-btn" data-value="pregas">Pregas</button>
+          <button class="opt-btn" data-value="recortes">Recortes</button>
+          <button class="opt-btn" data-value="peplum">Peplum</button>
+          <button class="opt-btn" data-value="assimetria">Assimetria</button>
+          <button class="opt-btn" data-value="sobreposição">Sobreposição</button>
+          <button class="opt-btn" data-value="transparência">Transparência</button>
+          <button class="opt-btn" data-value="botões">Botões</button>
+          <button class="opt-btn" data-value="amarração">Amarração</button>
+          <button class="opt-btn" data-value="laço">Laço</button>
+          <button class="opt-btn" data-value="bolsos">Bolsos</button>
+          <button class="opt-btn" data-value="cinto">Cinto</button>
+          <button class="opt-btn" data-value="faixa">Faixa</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ocasião e Conceito -->
+    <div class="section">
+      <h2 class="section-title"><span>🌴</span> Ocasião & Conceito</h2>
+      
+      <div class="form-group">
+        <label class="form-label">Ocasião</label>
+        <div class="options-grid options-grid-3" id="ocasiaoOptions">
+          <button class="opt-btn selected" data-value="casual chic">Casual Chic</button>
+          <button class="opt-btn" data-value="praia e resort">Praia & Resort</button>
+          <button class="opt-btn" data-value="passeio">Passeio</button>
+          <button class="opt-btn" data-value="romântico">Romântico</button>
+          <button class="opt-btn" data-value="boho">Boho</button>
+          <button class="opt-btn" data-value="trabalho criativo">Trabalho Criativo</button>
+          <button class="opt-btn" data-value="almoço especial">Almoço Especial</button>
+          <button class="opt-btn" data-value="sunset">Sunset</button>
+          <button class="opt-btn" data-value="viagem">Viagem</option>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      
+      <div class="form-group">
+        <label class="form-label">Paleta de Cores (opcional)</label>
+        <textarea id="paletaCores" placeholder="Ex: tons de terracota e off-white, azul cerúleo com detalhes em dourado, paleta nordestina com verde cacto e laranja cajá..."></textarea>
+      </div>
+
+      <div class="divider"></div>
+      
+      <div class="form-group">
+        <label class="form-label">Observações Adicionais (opcional)</label>
+        <textarea id="observacoes" placeholder="Detalhes específicos, inspirações, referências regionais, técnicas artesanais desejadas..."></textarea>
+      </div>
+    </div>
+
+    <!-- Generate Button -->
+    <button class="generate-btn" onclick="gerarPrompt()">
+      <span>✨</span> Gerar Prompt para Sora
+    </button>
+
+    <!-- Output -->
+    <div class="section output-section" id="outputSection">
+      <div class="output-header">
+        <span class="output-title">📋 Prompt Sora</span>
+        <button class="copy-btn" onclick="copiarPrompt()">📋 Copiar</button>
+      </div>
+      <div class="prompt-output" id="promptOutput"></div>
+    </div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // Estado
+    let currentImage = null;
+    
+    const selections = {
+      decote: 'redondo',
+      manga: 'sem manga',
+      silhueta: 'fluida',
+      cintura: 'natural',
+      detalhes: [],
+      ocasiao: 'casual chic'
+    };
+
+    // Setup drag and drop
+    const uploadZone = document.getElementById('uploadZone');
+    
+    uploadZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadZone.classList.add('dragover');
+    });
+    
+    uploadZone.addEventListener('dragleave', () => {
+      uploadZone.classList.remove('dragover');
+    });
+    
+    uploadZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadZone.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        processFile(file);
+      }
+    });
+
+    function handleFileSelect(event) {
+      const file = event.target.files[0];
+      if (file) processFile(file);
+    }
+
+    function processFile(file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        currentImage = e.target.result;
+        document.getElementById('previewImage').src = currentImage;
+        document.getElementById('uploadContent').style.display = 'none';
+        document.getElementById('previewContainer').style.display = 'block';
+        uploadZone.classList.add('has-image');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removerImagem() {
+      currentImage = null;
+      document.getElementById('uploadContent').style.display = 'block';
+      document.getElementById('previewContainer').style.display = 'none';
+      uploadZone.classList.remove('has-image');
+      document.getElementById('fileInput').value = '';
+    }
+
+    // Setup option buttons
+    document.querySelectorAll('.options-grid').forEach(grid => {
+      const isMultiple = grid.id === 'detalhesOptions';
+      
+      grid.querySelectorAll('.opt-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const value = btn.dataset.value;
+          const groupId = grid.id.replace('Options', '');
+          
+          if (isMultiple) {
+            // Toggle for detalhes (multiple selection)
+            btn.classList.toggle('selected');
+            if (btn.classList.contains('selected')) {
+              selections.detalhes.push(value);
+            } else {
+              selections.detalhes = selections.detalhes.filter(d => d !== value);
+            }
+          } else {
+            // Single selection for others
+            grid.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selections[groupId] = value;
+          }
+        });
+      });
+    });
+
+    function gerarPrompt() {
+      const tipo = document.getElementById('tipoPeca').value;
+      const paleta = document.getElementById('paletaCores').value.trim();
+      const obs = document.getElementById('observacoes').value.trim();
+      
+      const detalhesTexto = selections.detalhes.length > 0 
+        ? `\n• Detalhes: ${selections.detalhes.join(', ')}`
+        : '';
+      
+      const paletaTexto = paleta 
+        ? `\n\n🎨 Paleta de Cores:\n${paleta}`
+        : '\n\n🎨 Paleta de Cores:\nInspirada na referência visual, usar cores que induzam bem-estar, vibrantes mas sofisticadas.';
+      
+      const obsTexto = obs 
+        ? `\n\n📝 Observações:\n${obs}`
+        : '';
+
+      const referenciaTexto = currentImage 
+        ? `\n\n═══════════════════════════════════════════════════════════════
+📸 REFERÊNCIA VISUAL
+═══════════════════════════════════════════════════════════════
+
+A peça deve ser desenvolvida INSPIRADA NA IMAGEM DE REFERÊNCIA anexada.
+
+Extraia da referência:
+- Paleta de cores e combinações cromáticas
+- Mood e atmosfera visual
+- Elementos gráficos e motivos (se houver estampa)
+- Texturas e sensações táteis sugeridas
+- Estilo artístico e linguagem visual
+
+A estampa/padronagem da peça deve dialogar com a referência, reinterpretando seus elementos com a identidade LUNE.`
+        : '';
+
+      const prompt = `Como Diretor Criativo da LUNE, desenvolva um(a) ${tipo} com as seguintes especificações:
+
+═══════════════════════════════════════════════════════════════
+📐 ESPECIFICAÇÕES TÉCNICAS
+═══════════════════════════════════════════════════════════════
+
+• Tipo de peça: ${tipo}
+• Decote: ${selections.decote}
+• Manga: ${selections.manga}
+• Silhueta: ${selections.silhueta}
+• Cintura: ${selections.cintura}${detalhesTexto}
+• Ocasião: ${selections.ocasiao}
+
+═══════════════════════════════════════════════════════════════
+🌙 IDENTIDADE LUNE
+═══════════════════════════════════════════════════════════════
+
+A marca LUNE é tropical poético, feminino, autoral, nordestino e solar.
+Toda criação deve refletir essa essência.
+
+Inspirações de estilo: Farm Rio, Isabel Marant, Chloé, Etro, Agua Bendita, Sézane, La DoubleJ.
+
+═══════════════════════════════════════════════════════════════
+⚠️ REQUISITO FUNDAMENTAL: PEÇA 100% COMERCIAL
+═══════════════════════════════════════════════════════════════
+
+ATENÇÃO: Esta peça será VENDIDA em lojas multimarcas para o público feminino brasileiro.
+NÃO é peça conceitual, NÃO é editorial, NÃO é passarela.
+É uma peça REAL que precisa VENDER.
+
+CRITÉRIOS COMERCIAIS OBRIGATÓRIOS:
+• A cliente precisa QUERER comprar ao ver na arara
+• Precisa funcionar no CORPO REAL (não só no croqui)
+• Deve ter VERSATILIDADE de uso (pelo menos 3 ocasiões diferentes)
+• O preço de produção deve permitir margem saudável
+• Deve ser fácil de vestir e tirar
+• Precisa valorizar diferentes tipos de corpo
+• Não pode ter elementos que dificultem a venda (muito ousado, muito básico, difícil de combinar)
+
+═══════════════════════════════════════════════════════════════
+🎯 CRITÉRIOS DE DESENVOLVIMENTO
+═══════════════════════════════════════════════════════════════
+
+APELO COMERCIAL (PRIORIDADE MÁXIMA):
+A peça deve ser DESEJÁVEL e VENDÁVEL. O diferencial criativo JAMAIS pode comprometer a aceitação no ponto de venda. Pense sempre: "A cliente de boutique vai querer levar isso pra casa?"
+
+VIABILIDADE DE PRODUÇÃO:
+- Costura deve ser executável por costureira experiente
+- Evitar construções muito complexas que encareçam demais
+- Considerar tecidos disponíveis no mercado brasileiro
+
+CONCEITUAÇÃO:
+O modelo precisa ter uma ideia clara — mas que seja COMPREENSÍVEL pela cliente final, não apenas pelo designer.
+
+DIFERENCIAÇÃO COM RESPONSABILIDADE:
+Ter assinatura própria SEM ser estranho ou difícil de usar. O diferencial deve ser um ATRATIVO, não uma barreira.
+
+CARACTERÍSTICAS FÍSICAS:
+Proporção, caimento, fluidez e movimento devem FAVORECER o corpo feminino real.
+
+POTENCIAL DE VENDA:
+- Boa presença em vitrine e arara
+- Fotografa bem para Instagram/WhatsApp das lojas
+- Fácil de descrever para a cliente
+
+CONSTRUÇÃO INTELIGENTE:
+- Evitar transparências excessivas
+- Decotes elegantes mas não vulgares
+- Conforto é ESSENCIAL
+- Praticidade no dia a dia${referenciaTexto}${paletaTexto}${obsTexto}
+
+═══════════════════════════════════════════════════════════════
+✍️ TÉCNICA DE REPRESENTAÇÃO
+═══════════════════════════════════════════════════════════════
+
+O croqui deve ser apresentado sobre um MANEQUIM DE PROVA PADRÃO:
+- Sem rosto detalhado (manequim estilizado)
+- Calçando plataforma estilo Chloé OU sandália gladiadora
+
+TÉCNICA ARTÍSTICA:
+- Aquarela e caneta nanquim, ambos da marca Winsor & Newton
+- Fundo off-white
+- Estilo realista com acabamento técnico e artístico
+- Estética clássica europeia
+- Traço limpo, proporções elegantes, composição refinada
+
+A ilustração deve mostrar claramente:
+- Caimento do tecido
+- Detalhes de construção
+- Proporções da peça no corpo
+- Movimento e fluidez do material
+- A estampa/padronagem inspirada na referência (se aplicável)`;
+
+      document.getElementById('promptOutput').textContent = prompt;
+      document.getElementById('outputSection').classList.add('visible');
+      
+      // Scroll to output
+      setTimeout(() => {
+        document.getElementById('outputSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+
+    function copiarPrompt() {
+      const prompt = document.getElementById('promptOutput').textContent;
+      navigator.clipboard.writeText(prompt);
+      showToast('Prompt copiado!');
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+  </script>
+</body>
+</html>
