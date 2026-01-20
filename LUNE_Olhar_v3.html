@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LUNE Olhar v3</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', -apple-system, sans-serif; background: #0a0a0f; color: #e8e8e8; min-height: 100vh; padding: 20px; padding-bottom: 100px; }
+    .container { max-width: 700px; margin: 0 auto; }
+    .header { text-align: center; padding: 30px 0 40px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 30px; }
+    .logo { font-size: 28px; font-weight: 700; letter-spacing: 8px; color: #fff; margin-bottom: 8px; }
+    .logo span { color: #a78bfa; }
+    .subtitle { font-size: 12px; color: #888; letter-spacing: 3px; text-transform: uppercase; }
+    .tagline { font-size: 13px; color: #666; margin-top: 12px; font-style: italic; }
+    .version { font-size: 10px; color: #a78bfa; margin-top: 8px; }
+    .api-section { background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.3); border-radius: 12px; padding: 16px; margin-bottom: 30px; }
+    .api-section.configured { background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.3); }
+    .api-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .api-label { font-size: 11px; font-weight: 600; color: #a78bfa; letter-spacing: 1px; text-transform: uppercase; }
+    .api-section.configured .api-label { color: #22c55e; }
+    .api-status { font-size: 11px; color: #888; }
+    .api-input-row { display: flex; gap: 10px; }
+    .api-input-row input { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 10px 14px; color: #fff; font-size: 13px; font-family: monospace; }
+    .api-input-row input:focus { outline: none; border-color: #a78bfa; }
+    .api-btn { background: #a78bfa; border: none; border-radius: 8px; padding: 10px 18px; color: #000; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .api-btn:hover { background: #c4b5fd; }
+    .upload-zone { border: 2px dashed rgba(167,139,250,0.4); border-radius: 20px; padding: 50px 30px; text-align: center; cursor: pointer; transition: all 0.3s; background: rgba(167,139,250,0.05); margin-bottom: 24px; }
+    .upload-zone:hover { border-color: #a78bfa; background: rgba(167,139,250,0.1); }
+    .upload-zone.dragover { border-color: #a78bfa; background: rgba(167,139,250,0.15); transform: scale(1.02); }
+    .upload-zone.has-image { padding: 20px; }
+    .upload-icon { font-size: 48px; margin-bottom: 16px; }
+    .upload-text { font-size: 15px; color: #aaa; margin-bottom: 8px; }
+    .upload-hint { font-size: 12px; color: #666; }
+    .preview-container { position: relative; display: none; }
+    .preview-image { max-width: 100%; max-height: 400px; border-radius: 12px; object-fit: contain; }
+    .remove-image { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); border: none; border-radius: 50%; width: 36px; height: 36px; color: #fff; font-size: 18px; cursor: pointer; transition: all 0.2s; }
+    .remove-image:hover { background: #e74c3c; }
+    .fidelity-section { margin-bottom: 24px; padding: 20px; background: rgba(255,255,255,0.03); border-radius: 12px; }
+    .fidelity-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .fidelity-label { font-size: 12px; font-weight: 600; color: #aaa; }
+    .fidelity-value { font-size: 12px; color: #a78bfa; font-weight: 600; }
+    .fidelity-slider { width: 100%; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.1); appearance: none; cursor: pointer; }
+    .fidelity-slider::-webkit-slider-thumb { appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #a78bfa; cursor: pointer; box-shadow: 0 2px 10px rgba(167,139,250,0.4); }
+    .fidelity-hints { display: flex; justify-content: space-between; margin-top: 8px; font-size: 10px; color: #666; }
+    .analyze-btn { width: 100%; background: linear-gradient(135deg, #a78bfa, #8b5cf6); border: none; border-radius: 14px; padding: 18px; color: #fff; font-size: 14px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .analyze-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(167,139,250,0.3); }
+    .analyze-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .analyze-btn.loading { background: linear-gradient(135deg, #6b5b95, #5a4a7a); }
+    .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .results-section { margin-top: 40px; display: none; }
+    .results-section.visible { display: block; }
+    .result-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+    .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .result-title { font-size: 12px; font-weight: 600; color: #a78bfa; letter-spacing: 2px; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+    .result-icon { font-size: 16px; }
+    .copy-btn { background: rgba(167,139,250,0.2); border: 1px solid rgba(167,139,250,0.4); border-radius: 8px; padding: 8px 14px; color: #a78bfa; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .copy-btn:hover { background: #a78bfa; color: #000; }
+    .result-content { font-size: 14px; line-height: 1.7; color: #ccc; }
+    .result-content p { margin-bottom: 12px; }
+    .result-content p:last-child { margin-bottom: 0; }
+    .palette-display { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    .palette-color { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); border-radius: 8px; padding: 8px 12px; cursor: pointer; transition: all 0.2s; }
+    .palette-color:hover { background: rgba(255,255,255,0.1); }
+    .color-swatch { width: 24px; height: 24px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); }
+    .color-hex { font-family: monospace; font-size: 12px; color: #aaa; }
+    .tags-display { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .style-tag { background: rgba(167,139,250,0.15); border: 1px solid rgba(167,139,250,0.3); border-radius: 20px; padding: 8px 14px; font-size: 12px; color: #c4b5fd; cursor: pointer; transition: all 0.2s; }
+    .style-tag:hover { background: rgba(167,139,250,0.3); }
+    .prompt-box { background: rgba(0,0,0,0.4); border-radius: 12px; padding: 16px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; line-height: 1.7; color: #ccc; margin-top: 12px; }
+    .prompt-variable { background: rgba(167,139,250,0.3); color: #e9d5ff; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+    .artists-list { margin-top: 12px; }
+    .artist-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .artist-item:last-child { border-bottom: none; }
+    .artist-bullet { color: #a78bfa; font-size: 14px; }
+    .artist-info { flex: 1; }
+    .artist-name { font-weight: 600; color: #fff; margin-bottom: 4px; }
+    .artist-why { font-size: 13px; color: #888; }
+    .actions-bar { display: flex; gap: 12px; margin-top: 30px; flex-wrap: wrap; }
+    .action-btn { flex: 1; min-width: 140px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 14px 20px; color: #ccc; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .action-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.25); color: #fff; }
+    .action-btn.primary { background: rgba(167,139,250,0.2); border-color: rgba(167,139,250,0.4); color: #c4b5fd; }
+    .action-btn.primary:hover { background: rgba(167,139,250,0.3); }
+    .history-section { margin-top: 50px; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); }
+    .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .history-title { font-size: 12px; font-weight: 600; color: #888; letter-spacing: 2px; text-transform: uppercase; }
+    .clear-history { font-size: 11px; color: #666; background: none; border: none; cursor: pointer; text-decoration: underline; }
+    .saved-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 16px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s; display: flex; gap: 16px; align-items: center; }
+    .saved-item:hover { background: rgba(255,255,255,0.06); border-color: rgba(167,139,250,0.4); }
+    .saved-thumb { width: 70px; height: 70px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+    .saved-info { flex: 1; min-width: 0; }
+    .saved-name { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+    .saved-date { font-size: 11px; color: #666; margin-bottom: 6px; }
+    .saved-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+    .saved-tag { background: rgba(167,139,250,0.15); padding: 3px 8px; border-radius: 10px; font-size: 10px; color: #a78bfa; }
+    .saved-empty { text-align: center; padding: 40px; color: #555; font-size: 13px; }
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 2000; padding: 20px; overflow-y: auto; }
+    .modal-overlay.open { display: flex; }
+    .modal-content { background: #12121a; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid rgba(255,255,255,0.1); position: sticky; top: 0; background: #12121a; z-index: 10; }
+    .modal-title { font-size: 16px; font-weight: 600; color: #fff; }
+    .modal-close { background: none; border: none; color: #888; font-size: 24px; cursor: pointer; padding: 0; line-height: 1; }
+    .modal-close:hover { color: #fff; }
+    .modal-body { padding: 24px; }
+    .modal-section { margin-bottom: 24px; }
+    .modal-section:last-child { margin-bottom: 0; }
+    .modal-section-title { font-size: 11px; font-weight: 600; color: #a78bfa; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+    .modal-section-content { font-size: 13px; line-height: 1.7; color: #ccc; }
+    .modal-palette { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .modal-color { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.05); padding: 6px 10px; border-radius: 6px; cursor: pointer; }
+    .modal-color:hover { background: rgba(255,255,255,0.1); }
+    .modal-color-swatch { width: 18px; height: 18px; border-radius: 4px; }
+    .modal-color-hex { font-family: monospace; font-size: 11px; color: #aaa; }
+    .modal-prompt { background: rgba(0,0,0,0.4); border-radius: 8px; padding: 12px; font-family: monospace; font-size: 11px; line-height: 1.6; color: #ccc; margin-top: 8px; cursor: pointer; }
+    .modal-prompt:hover { background: rgba(0,0,0,0.6); }
+    .modal-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .modal-tag { background: rgba(167,139,250,0.15); border: 1px solid rgba(167,139,250,0.3); padding: 5px 10px; border-radius: 15px; font-size: 11px; color: #c4b5fd; cursor: pointer; }
+    .modal-tag:hover { background: rgba(167,139,250,0.25); }
+    .modal-artists { margin-top: 8px; }
+    .modal-artist { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .modal-artist:last-child { border-bottom: none; }
+    .modal-artist-name { font-weight: 600; color: #fff; font-size: 13px; }
+    .modal-artist-why { font-size: 12px; color: #888; margin-top: 2px; }
+    .modal-actions { display: flex; gap: 10px; padding: 16px 24px; border-top: 1px solid rgba(255,255,255,0.1); background: #12121a; position: sticky; bottom: 0; }
+    .modal-actions .action-btn { flex: 1; }
+    .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #a78bfa; color: #000; padding: 14px 28px; border-radius: 30px; font-size: 13px; font-weight: 600; opacity: 0; transition: all 0.3s ease; z-index: 1000; }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    @media (max-width: 500px) { .actions-bar { flex-direction: column; } .action-btn { min-width: 100%; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="logo">LUNE <span>OLHAR</span></div>
+      <div class="subtitle">Análise de Referências</div>
+      <div class="tagline">"Decodifica a essência visual e transforma em criação"</div>
+      <div class="version">v3.0 — Desconstrução Técnica Profunda</div>
+    </header>
+
+    <div class="api-section" id="apiSection">
+      <div class="api-header">
+        <span class="api-label">🔑 Chave OpenAI</span>
+        <span class="api-status" id="apiStatus">Não configurada</span>
+      </div>
+      <div class="api-input-row">
+        <input type="password" id="apiKey" placeholder="sk-..." />
+        <button class="api-btn" onclick="saveApiKey()">Salvar</button>
+      </div>
+    </div>
+
+    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+      <div id="uploadContent">
+        <div class="upload-icon">👁️</div>
+        <div class="upload-text">Arraste uma imagem ou clique para selecionar</div>
+        <div class="upload-hint">PNG, JPG, WEBP • Máx 20MB</div>
+      </div>
+      <div class="preview-container" id="previewContainer">
+        <img id="previewImage" class="preview-image" />
+        <button class="remove-image" onclick="event.stopPropagation(); removeImage()">×</button>
+      </div>
+    </div>
+    <input type="file" id="fileInput" accept="image/*" style="display: none" onchange="handleFileSelect(event)" />
+
+    <div class="fidelity-section">
+      <div class="fidelity-header">
+        <span class="fidelity-label">Nível de Fidelidade do Prompt</span>
+        <span class="fidelity-value" id="fidelityValue">Equilibrado</span>
+      </div>
+      <input type="range" class="fidelity-slider" id="fidelitySlider" min="1" max="5" value="3" oninput="updateFidelity()" />
+      <div class="fidelity-hints">
+        <span>Mais livre</span>
+        <span>Fiel à referência</span>
+      </div>
+    </div>
+
+    <button class="analyze-btn" id="analyzeBtn" onclick="analyzeImage()" disabled>
+      <span id="btnText">👁️ Analisar Referência</span>
+    </button>
+
+    <div class="results-section" id="resultsSection">
+      <div class="result-card">
+        <div class="result-header">
+          <span class="result-title"><span class="result-icon">📝</span> Descrição Visual</span>
+          <button class="copy-btn" onclick="copySection('description')">Copiar</button>
+        </div>
+        <div class="result-content" id="descriptionContent"></div>
+      </div>
+
+      <div class="result-card">
+        <div class="result-header">
+          <span class="result-title"><span class="result-icon">🎨</span> Estilo & Técnica</span>
+          <button class="copy-btn" onclick="copySection('style')">Copiar</button>
+        </div>
+        <div class="result-content" id="styleContent"></div>
+        <div class="tags-display" id="styleTags"></div>
+      </div>
+
+      <div class="result-card">
+        <div class="result-header">
+          <span class="result-title"><span class="result-icon">🎭</span> Paleta de Cores</span>
+          <button class="copy-btn" onclick="copyPalette()">Copiar HEX</button>
+        </div>
+        <div class="result-content" id="paletteDescription"></div>
+        <div class="palette-display" id="paletteDisplay"></div>
+      </div>
+
+      <div class="result-card">
+        <div class="result-header">
+          <span class="result-title"><span class="result-icon">👤</span> Artistas & Referências Similares</span>
+        </div>
+        <div class="artists-list" id="artistsList"></div>
+      </div>
+
+      <div class="result-card">
+        <div class="result-header">
+          <span class="result-title"><span class="result-icon">✨</span> Prompt Midjourney</span>
+          <button class="copy-btn" onclick="copySection('prompt')">Copiar</button>
+        </div>
+        <div class="result-content">
+          <p style="font-size: 12px; color: #888; margin-bottom: 12px;">Substitua [ELEMENTO] e [COR] para criar variações:</p>
+        </div>
+        <div class="prompt-box" id="promptTemplate"></div>
+      </div>
+
+      <div class="result-card">
+        <div class="result-header">
+          <span class="result-title"><span class="result-icon">🖼️</span> Prompt Sora (Imagem Estática)</span>
+          <button class="copy-btn" onclick="copySection('sora')">Copiar</button>
+        </div>
+        <div class="result-content">
+          <p style="font-size: 12px; color: #888; margin-bottom: 12px;">Template em português com técnica detalhada:</p>
+        </div>
+        <div class="prompt-box" id="soraTemplate"></div>
+      </div>
+
+      <div class="actions-bar">
+        <button class="action-btn" onclick="copyAll()">📋 Copiar Tudo</button>
+        <button class="action-btn primary" onclick="saveAnalysis()">💾 Salvar Análise</button>
+        <button class="action-btn" onclick="newAnalysis()">🔄 Nova Análise</button>
+      </div>
+    </div>
+
+    <section class="history-section">
+      <div class="history-header">
+        <span class="history-title">Análises Salvas</span>
+        <button class="clear-history" onclick="clearHistory()">Limpar</button>
+      </div>
+      <div id="savedAnalysesList"></div>
+    </section>
+  </div>
+
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalTitle">Análise Salva</h3>
+        <button class="modal-close" onclick="closeModal()">×</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-actions">
+        <button class="action-btn" onclick="copyModalContent()">📋 Copiar Tudo</button>
+        <button class="action-btn" onclick="deleteAnalysis()">🗑️ Excluir</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Copiado!</div>
+
+  <script>
+    let currentImage = null;
+    let currentImageBase64 = null;
+    let analysisResult = null;
+    let savedAnalyses = JSON.parse(localStorage.getItem('lune_olhar_saved') || '[]');
+    let currentModalIndex = null;
+
+    const fidelityLabels = { 1: 'Bem livre', 2: 'Livre', 3: 'Equilibrado', 4: 'Fiel', 5: 'Muito fiel' };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadApiKey();
+      renderSavedAnalyses();
+      setupDragDrop();
+    });
+
+    function loadApiKey() {
+      const key = localStorage.getItem('lune_openai_key');
+      if (key) {
+        document.getElementById('apiKey').value = key;
+        document.getElementById('apiSection').classList.add('configured');
+        document.getElementById('apiStatus').textContent = 'Configurada ✓';
+      }
+    }
+
+    function saveApiKey() {
+      const key = document.getElementById('apiKey').value.trim();
+      if (key) {
+        localStorage.setItem('lune_openai_key', key);
+        document.getElementById('apiSection').classList.add('configured');
+        document.getElementById('apiStatus').textContent = 'Configurada ✓';
+        showToast('Chave salva!');
+      }
+    }
+
+    function setupDragDrop() {
+      const zone = document.getElementById('uploadZone');
+      zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('dragover'); });
+      zone.addEventListener('dragleave', () => { zone.classList.remove('dragover'); });
+      zone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        zone.classList.remove('dragover');
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) processFile(file);
+      });
+    }
+
+    function handleFileSelect(event) {
+      const file = event.target.files[0];
+      if (file) processFile(file);
+    }
+
+    function processFile(file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        currentImage = e.target.result;
+        currentImageBase64 = e.target.result.split(',')[1];
+        document.getElementById('previewImage').src = currentImage;
+        document.getElementById('uploadContent').style.display = 'none';
+        document.getElementById('previewContainer').style.display = 'block';
+        document.getElementById('uploadZone').classList.add('has-image');
+        document.getElementById('analyzeBtn').disabled = false;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeImage() {
+      currentImage = null;
+      currentImageBase64 = null;
+      document.getElementById('uploadContent').style.display = 'block';
+      document.getElementById('previewContainer').style.display = 'none';
+      document.getElementById('uploadZone').classList.remove('has-image');
+      document.getElementById('analyzeBtn').disabled = true;
+      document.getElementById('fileInput').value = '';
+    }
+
+    function updateFidelity() {
+      const value = document.getElementById('fidelitySlider').value;
+      document.getElementById('fidelityValue').textContent = fidelityLabels[value];
+    }
+
+    async function analyzeImage() {
+      const apiKey = localStorage.getItem('lune_openai_key');
+      if (!apiKey) { showToast('Configure a chave API primeiro'); return; }
+      if (!currentImageBase64) { showToast('Selecione uma imagem'); return; }
+
+      const btn = document.getElementById('analyzeBtn');
+      const btnText = document.getElementById('btnText');
+      btn.disabled = true;
+      btn.classList.add('loading');
+      btnText.innerHTML = '<div class="spinner"></div> Analisando técnica...';
+
+      const fidelity = document.getElementById('fidelitySlider').value;
+      const fidelityContext = getFidelityContext(fidelity);
+
+      const prompt = `Você é um ANALISTA TÉCNICO ESPECIALISTA em técnicas pictóricas tradicionais. Sua missão é fazer uma DESCONSTRUÇÃO TÉCNICA PROFUNDA da imagem para gerar prompts que reproduzam FIELMENTE o estilo visual.
+
+Analise APENAS a TÉCNICA de pintura/ilustração, NÃO o que está representado.
+
+═══════════════════════════════════════════════════════════════
+RESPONDA EM JSON seguindo RIGOROSAMENTE esta estrutura:
+═══════════════════════════════════════════════════════════════
+
+1. **description** - DESCRIÇÃO VISUAL (2-3 parágrafos)
+Descreva: composição, elementos visuais, hierarquia, mood/atmosfera. Foque na FORMA, não no conteúdo.
+
+2. **style** - DESCONSTRUÇÃO TÉCNICA DETALHADA (seção MAIS IMPORTANTE)
+
+Analise CADA aspecto com PRECISÃO CIRÚRGICA:
+
+**MEIO/TINTA:**
+- Tipo exato: aquarela transparente / guache opaco / acrílica / óleo / técnica mista / digital que imita tradicional
+- Diluição: muito diluída/aguada | média | concentrada/pastosa | chapada/opaca
+- Acabamento: fosco | acetinado | brilhante
+- Transparência: totalmente transparente | semi-transparente | semi-opaco | totalmente opaco
+
+**PINCELADAS:**
+- Visibilidade: invisíveis/blended | sutilmente visíveis | claramente visíveis | expressivas/gestuais
+- Direção: seguem a forma orgânica | direcionais paralelas | multidirecionais | radiantes do centro
+- Tamanho: pincel fino (detalhes) | médio (preenchimento) | largo (lavadas) | misto
+- Técnica: molhada (wet) | seca (dry brush) | mista | esfregada
+- Bordas: suaves/esfumadas | médias | duras/definidas
+
+**APLICAÇÃO DE COR:**
+- Método: wet-on-wet | wet-on-dry | camadas sobrepostas | alla prima (direto)
+- Transições: gradientes suaves | transições médias | blocos chapados | contrastes abruptos
+- Mistura: cores se fundem na superfície | misturadas na paleta | justapostas sem mistura
+- Saturação: muito diluídas/pastel | saturação média | vibrantes/saturadas | intensas/chapadas
+
+**CAMADAS:**
+- Número: camada única | 2-3 camadas | múltiplas camadas complexas
+- Transparência entre camadas: muito transparente | parcial | opaco
+- Papel/fundo visível: muito visível | parcialmente | totalmente coberto
+
+**TEXTURA:**
+- Papel: liso/hot press | granulado/cold press | rugoso/rough
+- Textura visível: muito evidente | sutilmente visível | não visível
+- Efeitos especiais: nenhum | granulação | blooms/backruns | sal | splatter
+
+**LINHA E CONTORNO:**
+- Presença: sem contorno | contorno sutil | contorno definido | contorno proeminente
+- Ferramenta: mesmo pincel | pincel fino | nanquim | caneta | lápis
+- Cor e espessura do contorno
+- Estilo: orgânica/irregular | controlada/precisa | gestual | técnica/uniforme
+
+**DETALHES:**
+- Nível: mínimo/sugestivo | moderado | alto/detalhista | hiper-detalhado
+- Técnica dos detalhes: mesmo pincel | pincel fino | caneta/nanquim | pontos | traços secos
+
+**ESTILO GERAL:**
+- Abordagem: realista | naturalista | estilizado | naïf/ingênuo | abstrato | decorativo
+- Gênero: folk art | ilustração botânica | art déco | escandinavo | contemporâneo | editorial
+- Acabamento: polido/refinado | artesanal com charme | solto/expressivo
+- Simetria: simétrico | orgânico/assimétrico | radial
+
+3. **styleTags** - Liste 6-10 tags específicas baseadas na análise técnica real
+
+4. **paletteDescription** - Descrição da paleta (temperatura, saturação, harmonia, contraste)
+
+5. **paletteHex** - Array com exatamente 5 cores HEX dominantes
+
+6. **artists** - 3-5 artistas/movimentos similares com justificativa técnica
+
+7. **promptMidjourney** - PROMPT TÉCNICO COMPLETO
+${fidelityContext}
+
+ESTRUTURA OBRIGATÓRIA - monte concatenando os achados da análise:
+"[ELEMENTO], [COR], [TODA A DESCRIÇÃO TÉCNICA: tipo de tinta + opacidade + visibilidade das pinceladas + direção + método de aplicação + transições + bordas + contorno (cor e espessura) + textura + estilo artístico + acabamento], single centered element, isolated on clean white background, generous negative space, no other elements, no text --stylize 50 --ar 1:1 --style raw --v 7"
+
+EXEMPLOS de descrição técnica bem construída:
+
+Se for GUACHE OPACO com estilo folk:
+"opaque gouache with flat saturated color blocks, clearly visible directional brushstrokes following the form, bold black outlines of medium thickness, dry brush texture in details, matte finish, naive folk art style with simplified geometric shapes"
+
+Se for AQUARELA TRANSPARENTE delicada:
+"transparent watercolor with diluted luminous washes, invisible blended brushstrokes, wet-on-wet color bleeding at edges, soft diffused transitions, no outlines just color shapes, visible paper grain texture, delicate botanical illustration style"
+
+Se for DIGITAL que imita TRADICIONAL:
+"digital painting mimicking gouache, semi-opaque layered colors, subtle brushstroke texture, controlled smooth gradients, thin dark outlines, contemporary illustration style, clean polished finish"
+
+8. **promptSora** - TEMPLATE EM PORTUGUÊS para imagem estática
+
+FORMATO OBRIGATÓRIO - copie a descrição técnica traduzida:
+"[ELEMENTO], em [CORES], [TÉCNICA DETALHADA EM PORTUGUÊS - tipo de tinta, opacidade, pinceladas, direção, aplicação, transições, contornos, textura, estilo, acabamento], ELEMENTO ÚNICO CENTRALIZADO em fundo branco puro, amplo espaço negativo ao redor, sem outros elementos, sem texto, sem sombra"
+
+VERIFICAÇÃO FINAL - Os prompts DEVEM conter:
+✓ Tipo específico de tinta/meio (não apenas "watercolor" ou "gouache")
+✓ Opacidade/transparência
+✓ Visibilidade e direção das pinceladas
+✓ Método de aplicação e transições
+✓ Descrição dos contornos (presença, cor, espessura)
+✓ Textura
+✓ Estilo artístico específico
+✓ Acabamento
+
+Se algum item estiver genérico, REESCREVA com informação específica da análise.
+
+Responda APENAS com o JSON válido, sem markdown:
+{
+  "description": "...",
+  "style": "...",
+  "styleTags": [...],
+  "paletteDescription": "...",
+  "paletteHex": [...],
+  "artists": [...],
+  "promptMidjourney": "...",
+  "promptSora": "..."
+}`;
+
+      try {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+          body: JSON.stringify({
+            model: 'gpt-4o',
+            messages: [{
+              role: 'user',
+              content: [
+                { type: 'text', text: prompt },
+                { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${currentImageBase64}`, detail: 'high' } }
+              ]
+            }],
+            max_tokens: 4500
+          })
+        });
+
+        const data = await response.json();
+        if (data.error) throw new Error(data.error.message);
+
+        const content = data.choices[0].message.content;
+        let jsonMatch = content.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          analysisResult = JSON.parse(jsonMatch[0]);
+          displayResults(analysisResult);
+        } else {
+          throw new Error('Resposta inválida da API');
+        }
+      } catch (error) {
+        console.error(error);
+        showToast('Erro: ' + error.message);
+      } finally {
+        btn.disabled = false;
+        btn.classList.remove('loading');
+        btnText.innerHTML = '👁️ Analisar Referência';
+      }
+    }
+
+    function getFidelityContext(level) {
+      const contexts = {
+        1: 'Seja bem abstrato, capturando apenas a essência geral do estilo',
+        2: 'Seja livre mas mantenha o mood e técnica principais',
+        3: 'Equilibre fidelidade com flexibilidade criativa',
+        4: 'Seja fiel ao estilo, técnica e características observadas',
+        5: 'Seja muito fiel, replicando o máximo da técnica, pinceladas e estilo'
+      };
+      return contexts[level];
+    }
+
+    function displayResults(result) {
+      document.getElementById('resultsSection').classList.add('visible');
+      document.getElementById('descriptionContent').innerHTML = `<p>${result.description}</p>`;
+      document.getElementById('styleContent').innerHTML = `<p>${result.style}</p>`;
+      document.getElementById('styleTags').innerHTML = result.styleTags.map(tag => `<span class="style-tag" onclick="copyText('${tag}')">${tag}</span>`).join('');
+      document.getElementById('paletteDescription').innerHTML = `<p>${result.paletteDescription}</p>`;
+      document.getElementById('paletteDisplay').innerHTML = result.paletteHex.map(hex => `<div class="palette-color" onclick="copyText('${hex}')"><div class="color-swatch" style="background: ${hex}"></div><span class="color-hex">${hex}</span></div>`).join('');
+      document.getElementById('artistsList').innerHTML = result.artists.map(artist => `<div class="artist-item"><span class="artist-bullet">→</span><div class="artist-info"><div class="artist-name">${artist.name}</div><div class="artist-why">${artist.why}</div></div></div>`).join('');
+      document.getElementById('promptTemplate').innerHTML = highlightVariables(result.promptMidjourney);
+      document.getElementById('soraTemplate').innerHTML = highlightVariables(result.promptSora);
+      document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function highlightVariables(text) {
+      return text.replace(/\[ELEMENTO\]/g, '<span class="prompt-variable">[ELEMENTO]</span>').replace(/\[COR\]/g, '<span class="prompt-variable">[COR]</span>').replace(/\[CORES\]/g, '<span class="prompt-variable">[CORES]</span>');
+    }
+
+    function copyText(text) { navigator.clipboard.writeText(text); showToast('Copiado!'); }
+
+    function copySection(section) {
+      let text = '';
+      switch(section) {
+        case 'description': text = analysisResult.description; break;
+        case 'style': text = analysisResult.style + '\n\nTags: ' + analysisResult.styleTags.join(', '); break;
+        case 'prompt': text = analysisResult.promptMidjourney; break;
+        case 'sora': text = analysisResult.promptSora; break;
+      }
+      navigator.clipboard.writeText(text);
+      showToast('Copiado!');
+    }
+
+    function copyPalette() { navigator.clipboard.writeText(analysisResult.paletteHex.join(', ')); showToast('Paleta copiada!'); }
+
+    function copyAll() { navigator.clipboard.writeText(formatAnalysisText(analysisResult)); showToast('Análise completa copiada!'); }
+
+    function formatAnalysisText(result) {
+      return `=== LUNE OLHAR v2 - ANÁLISE DE REFERÊNCIA ===
+
+📝 DESCRIÇÃO VISUAL
+${result.description}
+
+🎨 ESTILO & TÉCNICA
+${result.style}
+
+Tags: ${result.styleTags.join(', ')}
+
+🎭 PALETA DE CORES
+${result.paletteDescription}
+Cores: ${result.paletteHex.join(', ')}
+
+👤 ARTISTAS SIMILARES
+${result.artists.map(a => `• ${a.name}: ${a.why}`).join('\n')}
+
+✨ PROMPT MIDJOURNEY
+${result.promptMidjourney}
+
+🖼️ PROMPT SORA (IMAGEM ESTÁTICA)
+${result.promptSora}`;
+    }
+
+    async function saveAnalysis() {
+      if (!analysisResult) { showToast('Nenhuma análise para salvar'); return; }
+      const name = prompt('Nome para esta análise:', analysisResult.styleTags[0] || 'Análise');
+      if (!name) return;
+
+      const thumbnail = await resizeImage(currentImage, 150);
+      const entry = { id: Date.now(), name: name, date: new Date().toLocaleString('pt-BR'), thumbnail: thumbnail, result: analysisResult };
+      savedAnalyses.unshift(entry);
+      if (savedAnalyses.length > 20) savedAnalyses = savedAnalyses.slice(0, 20);
+
+      try {
+        localStorage.setItem('lune_olhar_saved', JSON.stringify(savedAnalyses));
+        renderSavedAnalyses();
+        showToast('Análise salva!');
+      } catch (e) {
+        savedAnalyses = savedAnalyses.slice(0, 10);
+        localStorage.setItem('lune_olhar_saved', JSON.stringify(savedAnalyses));
+        renderSavedAnalyses();
+        showToast('Salvo (histórico antigo removido)');
+      }
+    }
+
+    function resizeImage(base64, maxSize) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let w = img.width, h = img.height;
+          if (w > h) { if (w > maxSize) { h *= maxSize / w; w = maxSize; } }
+          else { if (h > maxSize) { w *= maxSize / h; h = maxSize; } }
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', 0.6));
+        };
+        img.onerror = () => resolve(base64.substring(0, 50000));
+        img.src = base64;
+      });
+    }
+
+    function renderSavedAnalyses() {
+      const container = document.getElementById('savedAnalysesList');
+      if (savedAnalyses.length === 0) {
+        container.innerHTML = '<div class="saved-empty">Nenhuma análise salva ainda.</div>';
+        return;
+      }
+      container.innerHTML = savedAnalyses.map((item, index) => `
+        <div class="saved-item" onclick="openAnalysis(${index})">
+          <img src="${item.thumbnail}" class="saved-thumb" onerror="this.style.display='none'" />
+          <div class="saved-info">
+            <div class="saved-name">${item.name}</div>
+            <div class="saved-date">${item.date}</div>
+            <div class="saved-tags">${item.result.styleTags.slice(0, 3).map(tag => `<span class="saved-tag">${tag}</span>`).join('')}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openAnalysis(index) {
+      currentModalIndex = index;
+      const item = savedAnalyses[index];
+      const result = item.result;
+      document.getElementById('modalTitle').textContent = item.name;
+      document.getElementById('modalBody').innerHTML = `
+        <div class="modal-section"><div class="modal-section-title">📝 Descrição</div><div class="modal-section-content">${result.description}</div></div>
+        <div class="modal-section"><div class="modal-section-title">🎨 Técnica</div><div class="modal-section-content">${result.style}</div><div class="modal-tags">${result.styleTags.map(tag => `<span class="modal-tag">${tag}</span>`).join('')}</div></div>
+        <div class="modal-section"><div class="modal-section-title">🎭 Paleta</div><div class="modal-palette">${result.paletteHex.map(hex => `<div class="modal-color" onclick="copyText('${hex}')"><div class="modal-color-swatch" style="background: ${hex}"></div><span class="modal-color-hex">${hex}</span></div>`).join('')}</div></div>
+        <div class="modal-section"><div class="modal-section-title">✨ Midjourney</div><div class="modal-prompt" onclick="copyText(\`${result.promptMidjourney.replace(/`/g, "'")}\`)">${highlightVariables(result.promptMidjourney)}</div></div>
+        <div class="modal-section"><div class="modal-section-title">🖼️ Sora</div><div class="modal-prompt" onclick="copyText(\`${result.promptSora.replace(/`/g, "'")}\`)">${highlightVariables(result.promptSora)}</div></div>
+      `;
+      document.getElementById('modalOverlay').classList.add('open');
+    }
+
+    function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); currentModalIndex = null; }
+
+    function copyModalContent() {
+      if (currentModalIndex === null) return;
+      navigator.clipboard.writeText(formatAnalysisText(savedAnalyses[currentModalIndex].result));
+      showToast('Copiado!');
+    }
+
+    function deleteAnalysis() {
+      if (currentModalIndex === null || !confirm('Excluir?')) return;
+      savedAnalyses.splice(currentModalIndex, 1);
+      localStorage.setItem('lune_olhar_saved', JSON.stringify(savedAnalyses));
+      renderSavedAnalyses();
+      closeModal();
+      showToast('Excluído');
+    }
+
+    function clearHistory() {
+      if (!confirm('Limpar tudo?')) return;
+      savedAnalyses = [];
+      localStorage.removeItem('lune_olhar_saved');
+      renderSavedAnalyses();
+      showToast('Limpo');
+    }
+
+    function newAnalysis() {
+      removeImage();
+      document.getElementById('resultsSection').classList.remove('visible');
+      analysisResult = null;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+  </script>
+</body>
+</html>
