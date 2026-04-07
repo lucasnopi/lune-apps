@@ -94,7 +94,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                         'anthropic-version': '2023-06-01'
                     }
                 )
-                resp = urllib.request.urlopen(req, context=SSL_CTX, timeout=60)
+                resp = urllib.request.urlopen(req, context=SSL_CTX, timeout=120)
                 result = resp.read()
 
                 self.send_response(200)
@@ -102,10 +102,20 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 self.send_header('Access-Control-Allow-Origin', '*')
                 self.end_headers()
                 self.wfile.write(result)
+            except urllib.error.HTTPError as e:
+                error_body = e.read().decode()
+                print(f'[LUNE Apps] API Error {e.code}: {error_body[:200]}')
+                self.send_response(e.code)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                self.wfile.write(error_body.encode())
             except Exception as e:
                 error = json.dumps({'error': {'message': str(e)}})
+                print(f'[LUNE Apps] Error: {e}')
                 self.send_response(500)
                 self.send_header('Content-Type', 'application/json')
+                self.send_header('Access-Control-Allow-Origin', '*')
                 self.end_headers()
                 self.wfile.write(error.encode())
         else:
